@@ -1,0 +1,12 @@
+﻿
++-
+
+*
+<=
+hola adios
+<*
+<
+=
+int a = 5
+int b = 3
+float x = 56.7
