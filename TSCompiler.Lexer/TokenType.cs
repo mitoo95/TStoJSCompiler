@@ -9,8 +9,12 @@ namespace TSCompiler.Lexer
     public enum TokenType
     {
         Plus,
+        PlusPlus,
         Minus,
+        MinusMinus,
         Mult,
+        Division,
+        Modulus,
         EOF,
         LessOrEqualThan,
         GreaterOrEqualThan,
