@@ -39,6 +39,14 @@ namespace TSCompiler.Lexer
         ClassKeyword,
         FunctionKeyword,
         VarKeyword,
-        ConstKeyword
+        ConstKeyword,
+        Equality,
+        NotEquals,
+        Not,
+        And,
+        BitwiseAnd,
+        Or,
+        BitwiseOr,
+        Colon
     }
 }

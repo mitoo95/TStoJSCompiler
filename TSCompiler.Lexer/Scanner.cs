@@ -65,6 +65,7 @@ namespace TSCompiler.Lexer
                 {
                     lexeme.Append(currentChar);
                     currentChar = PeekNextChar();
+
                     while (char.IsDigit(currentChar))
                     {
                         currentChar = GetNextChar();
@@ -72,15 +73,15 @@ namespace TSCompiler.Lexer
                         currentChar = PeekNextChar();
                     }
 
-                    
-
                     if (currentChar != '.')
                     {
                         return CreateToken(TokenType.NumberConst, input.Position.Column, input.Position.Line, lexeme.ToString());
                     }
+
                     currentChar = GetNextChar();
                     lexeme.Append(currentChar);
                     currentChar = PeekNextChar();
+
                     while (char.IsDigit(currentChar))
                     {
                         currentChar = GetNextChar();
@@ -138,10 +139,50 @@ namespace TSCompiler.Lexer
                         return CreateToken(TokenType.GreaterThan, input.Position.Column, input.Position.Line, lexeme.ToString());
                     case '=':
                         lexeme.Append(currentChar);
+                        nextChar = PeekNextChar();
+                        if (nextChar == '=')
+                        {
+                            GetNextChar();
+                            lexeme.Append(nextChar);
+                            return CreateToken(TokenType.Equality, input.Position.Column, input.Position.Line, lexeme.ToString());
+                        }
                         return CreateToken(TokenType.Equal, input.Position.Column, input.Position.Line, lexeme.ToString());
+                    case '!':
+                        lexeme.Append(currentChar);
+                        nextChar = PeekNextChar();
+                        if (nextChar == '=')
+                        {
+                            GetNextChar();
+                            lexeme.Append(nextChar);
+                            return CreateToken(TokenType.NotEquals, input.Position.Column, input.Position.Line, lexeme.ToString());
+                        }
+                        return CreateToken(TokenType.Not, input.Position.Column, input.Position.Line, lexeme.ToString());
+                    case '&':
+                        lexeme.Append(currentChar);
+                        nextChar = PeekNextChar();
+                        if (nextChar == '&')
+                        {
+                            GetNextChar();
+                            lexeme.Append(nextChar);
+                            return CreateToken(TokenType.And, input.Position.Column, input.Position.Line, lexeme.ToString());
+                        }
+                        return CreateToken(TokenType.BitwiseAnd, input.Position.Column, input.Position.Line, lexeme.ToString());
+                    case '|':
+                        lexeme.Append(currentChar);
+                        nextChar = PeekNextChar();
+                        if (nextChar == '|')
+                        {
+                            GetNextChar();
+                            lexeme.Append(nextChar);
+                            return CreateToken(TokenType.Or, input.Position.Column, input.Position.Line, lexeme.ToString());
+                        }
+                        return CreateToken(TokenType.BitwiseOr, input.Position.Column, input.Position.Line, lexeme.ToString());
                     case '%':
                         lexeme.Append(currentChar);
                         return CreateToken(TokenType.Modulus, input.Position.Column, input.Position.Line, lexeme.ToString());
+                    case ':':
+                        lexeme.Append(currentChar);
+                        return CreateToken(TokenType.Colon, input.Position.Column, input.Position.Line, lexeme.ToString());
                     case '\0':
                         lexeme.Append(currentChar);
                         return CreateToken(TokenType.EOF, input.Position.Column, input.Position.Line, lexeme.ToString());
