@@ -95,16 +95,30 @@ namespace TSCompiler.Lexer
                 {
                     case '+':
                         lexeme.Append(currentChar);
+                        var nextChar = PeekNextChar();
+                        if (nextChar == '+')
+                        {
+                            GetNextChar();
+                            lexeme.Append(nextChar);
+                            return CreateToken(TokenType.PlusPlus, input.Position.Column, input.Position.Line, lexeme.ToString());
+                        }
                         return CreateToken(TokenType.Plus, input.Position.Column, input.Position.Line, lexeme.ToString());
                     case '-':
                         lexeme.Append(currentChar);
+                        nextChar = PeekNextChar();
+                        if (nextChar == '-')
+                        {
+                            GetNextChar();
+                            lexeme.Append(nextChar);
+                            return CreateToken(TokenType.MinusMinus, input.Position.Column, input.Position.Line, lexeme.ToString());
+                        }
                         return CreateToken(TokenType.Minus, input.Position.Column, input.Position.Line, lexeme.ToString());
                     case '*':
                         lexeme.Append(currentChar);
                         return CreateToken(TokenType.Mult, input.Position.Column, input.Position.Line, lexeme.ToString());
                     case '<':
                         lexeme.Append(currentChar);
-                        var nextChar = PeekNextChar();
+                        nextChar = PeekNextChar();
                         if (nextChar == '=')
                         {
                             GetNextChar();
@@ -125,6 +139,9 @@ namespace TSCompiler.Lexer
                     case '=':
                         lexeme.Append(currentChar);
                         return CreateToken(TokenType.Equal, input.Position.Column, input.Position.Line, lexeme.ToString());
+                    case '%':
+                        lexeme.Append(currentChar);
+                        return CreateToken(TokenType.Modulus, input.Position.Column, input.Position.Line, lexeme.ToString());
                     case '\0':
                         lexeme.Append(currentChar);
                         return CreateToken(TokenType.EOF, input.Position.Column, input.Position.Line, lexeme.ToString());
