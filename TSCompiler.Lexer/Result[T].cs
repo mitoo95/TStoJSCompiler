@@ -21,7 +21,7 @@ namespace TSCompiler.Lexer
             HasValue = false;
         }
 
-        public T Value { get; set; }
+        public T ?Value { get; set; }
         public Input Reminder { get; set; }
         public bool HasValue { get; set; }
     }
