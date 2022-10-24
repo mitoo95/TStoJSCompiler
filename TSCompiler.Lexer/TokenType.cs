@@ -24,10 +24,21 @@ namespace TSCompiler.Lexer
         Id,
         IfKeyword,
         ElseKeyword,
-        IntKeyword,
-        FloatKeyword,
+        WhileKeyword,
         StringKeyword,
-        IntConst,
-        FloatConst
+        NumberConst,
+        NumberKeyword,
+        BooleanKeyword,
+        VoidKeyword,
+        NullKeyword,
+        UndefinedKeyword,
+        ForKeyword,
+        TrueKeyword,
+        FalseKeyword,
+        LetKeyword,
+        ClassKeyword,
+        FunctionKeyword,
+        VarKeyword,
+        ConstKeyword
     }
 }

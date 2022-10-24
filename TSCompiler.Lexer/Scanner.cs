@@ -12,11 +12,23 @@ namespace TSCompiler.Lexer
             this.input = input;
             this.keywords = new Dictionary<string, TokenType>
             {
+                {"number", TokenType.NumberKeyword },
+                {"string", TokenType.StringKeyword },
+                {"boolean", TokenType.BooleanKeyword },
+                {"void", TokenType.VoidKeyword },
+                {"null", TokenType.NullKeyword },
+                {"undefined", TokenType.UndefinedKeyword },
                 {"if", TokenType.IfKeyword },
                 {"else", TokenType.ElseKeyword },
-                {"int", TokenType.IntKeyword },
-                {"float", TokenType.FloatKeyword },
-                {"string", TokenType.StringKeyword },
+                {"while", TokenType.WhileKeyword },
+                {"for", TokenType.ForKeyword },
+                {"true", TokenType.TrueKeyword },
+                {"false", TokenType.FalseKeyword },
+                {"let", TokenType.LetKeyword },
+                {"var", TokenType.VarKeyword },
+                {"const", TokenType.ConstKeyword },
+                {"class", TokenType.ClassKeyword },
+                {"function", TokenType.FunctionKeyword },
             };
         }
 
@@ -59,11 +71,13 @@ namespace TSCompiler.Lexer
                         lexeme.Append(currentChar);
                         currentChar = PeekNextChar();
                     }
+
+                    
+
                     if (currentChar != '.')
                     {
-                        return CreateToken(TokenType.IntConst, input.Position.Column, input.Position.Line, lexeme.ToString());
+                        return CreateToken(TokenType.NumberConst, input.Position.Column, input.Position.Line, lexeme.ToString());
                     }
-
                     currentChar = GetNextChar();
                     lexeme.Append(currentChar);
                     currentChar = PeekNextChar();
@@ -73,7 +87,8 @@ namespace TSCompiler.Lexer
                         lexeme.Append(currentChar);
                         currentChar = PeekNextChar();
                     }
-                    return CreateToken(TokenType.FloatConst, input.Position.Column, input.Position.Line, lexeme.ToString());
+
+                    return CreateToken(TokenType.NumberConst, input.Position.Column, input.Position.Line, lexeme.ToString());
                 }
 
                 switch (currentChar)
