@@ -48,5 +48,6 @@ namespace TSCompiler.Lexer
         Or,
         BitwiseOr,
         Colon,
+        Comma,
     }
 }
