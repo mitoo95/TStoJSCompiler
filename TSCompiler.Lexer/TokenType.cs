@@ -47,6 +47,6 @@ namespace TSCompiler.Lexer
         BitwiseAnd,
         Or,
         BitwiseOr,
-        Colon
+        Colon,
     }
 }
