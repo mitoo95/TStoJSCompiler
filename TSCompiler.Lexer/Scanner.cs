@@ -117,6 +117,9 @@ namespace TSCompiler.Lexer
                     case '*':
                         lexeme.Append(currentChar);
                         return CreateToken(TokenType.Mult, input.Position.Column, input.Position.Line, lexeme.ToString());
+                    case '/':
+                        lexeme.Append(currentChar);
+                        return CreateToken(TokenType.Division, input.Position.Column, input.Position.Line, lexeme.ToString());
                     case '<':
                         lexeme.Append(currentChar);
                         nextChar = PeekNextChar();
@@ -183,6 +186,9 @@ namespace TSCompiler.Lexer
                     case ':':
                         lexeme.Append(currentChar);
                         return CreateToken(TokenType.Colon, input.Position.Column, input.Position.Line, lexeme.ToString());
+                    case ',':
+                        lexeme.Append(currentChar);
+                        return CreateToken(TokenType.Comma, input.Position.Column, input.Position.Line, lexeme.ToString());
                     case '\0':
                         lexeme.Append(currentChar);
                         return CreateToken(TokenType.EOF, input.Position.Column, input.Position.Line, lexeme.ToString());

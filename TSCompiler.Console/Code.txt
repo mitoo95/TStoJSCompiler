@@ -5,8 +5,9 @@
 ++
 -+
 *
+/
 <=
-hola adios
+hola, adios
 <*
 %%
 <
