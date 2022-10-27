@@ -29,6 +29,12 @@ namespace TSCompiler.Lexer
                 {"const", TokenType.ConstKeyword },
                 {"class", TokenType.ClassKeyword },
                 {"function", TokenType.FunctionKeyword },
+                {"break", TokenType.BreakKeyword },
+                {"return", TokenType.ReturnKeyword },
+                {"continue", TokenType.ContinueKeyword },
+                {"in", TokenType.InKeyword },
+                {"of", TokenType.OfKeyword },
+                {"do", TokenType.DoKeyword },
             };
         }
 

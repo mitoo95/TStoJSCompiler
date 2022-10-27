@@ -49,5 +49,11 @@ namespace TSCompiler.Lexer
         BitwiseOr,
         Colon,
         Comma,
+        InKeyword,
+        OfKeyword,
+        DoKeyword,
+        BreakKeyword,
+        ReturnKeyword,
+        ContinueKeyword,
     }
 }
