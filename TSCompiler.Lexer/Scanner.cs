@@ -109,6 +109,12 @@ namespace TSCompiler.Lexer
                             lexeme.Append(nextChar);
                             return CreateToken(TokenType.PlusPlus, input.Position.Column, input.Position.Line, lexeme.ToString());
                         }
+                        if (nextChar == '=')
+                        {
+                            GetNextChar();
+                            lexeme.Append(nextChar);
+                            return CreateToken(TokenType.PlusEqual, input.Position.Column, input.Position.Line, lexeme.ToString());
+                        }
                         return CreateToken(TokenType.Plus, input.Position.Column, input.Position.Line, lexeme.ToString());
                     case '-':
                         lexeme.Append(currentChar);
@@ -119,12 +125,32 @@ namespace TSCompiler.Lexer
                             lexeme.Append(nextChar);
                             return CreateToken(TokenType.MinusMinus, input.Position.Column, input.Position.Line, lexeme.ToString());
                         }
+                        if (nextChar == '=')
+                        {
+                            GetNextChar();
+                            lexeme.Append(nextChar);
+                            return CreateToken(TokenType.MinusEqual, input.Position.Column, input.Position.Line, lexeme.ToString());
+                        }
                         return CreateToken(TokenType.Minus, input.Position.Column, input.Position.Line, lexeme.ToString());
                     case '*':
                         lexeme.Append(currentChar);
+                        nextChar = PeekNextChar();
+                        if (nextChar == '=')
+                        {
+                            GetNextChar();
+                            lexeme.Append(nextChar);
+                            return CreateToken(TokenType.MultEqual, input.Position.Column, input.Position.Line, lexeme.ToString());
+                        }
                         return CreateToken(TokenType.Mult, input.Position.Column, input.Position.Line, lexeme.ToString());
                     case '/':
                         lexeme.Append(currentChar);
+                        nextChar = PeekNextChar();
+                        if (nextChar == '=')
+                        {
+                            GetNextChar();
+                            lexeme.Append(nextChar);
+                            return CreateToken(TokenType.DivisionEqual, input.Position.Column, input.Position.Line, lexeme.ToString());
+                        }
                         return CreateToken(TokenType.Division, input.Position.Column, input.Position.Line, lexeme.ToString());
                     case '<':
                         lexeme.Append(currentChar);
@@ -175,6 +201,12 @@ namespace TSCompiler.Lexer
                             lexeme.Append(nextChar);
                             return CreateToken(TokenType.And, input.Position.Column, input.Position.Line, lexeme.ToString());
                         }
+                        if (nextChar == '=')
+                        {
+                            GetNextChar();
+                            lexeme.Append(nextChar);
+                            return CreateToken(TokenType.BitwiseAndEqual, input.Position.Column, input.Position.Line, lexeme.ToString());
+                        }
                         return CreateToken(TokenType.BitwiseAnd, input.Position.Column, input.Position.Line, lexeme.ToString());
                     case '|':
                         lexeme.Append(currentChar);
@@ -185,16 +217,67 @@ namespace TSCompiler.Lexer
                             lexeme.Append(nextChar);
                             return CreateToken(TokenType.Or, input.Position.Column, input.Position.Line, lexeme.ToString());
                         }
+                        if (nextChar == '=')
+                        {
+                            GetNextChar();
+                            lexeme.Append(nextChar);
+                            return CreateToken(TokenType.BitwiseOrEqual, input.Position.Column, input.Position.Line, lexeme.ToString());
+                        }
                         return CreateToken(TokenType.BitwiseOr, input.Position.Column, input.Position.Line, lexeme.ToString());
+                    case '^':
+                        lexeme.Append(currentChar);
+                        nextChar = PeekNextChar();
+                        if (nextChar == '=')
+                        {
+                            GetNextChar();
+                            lexeme.Append(nextChar);
+                            return CreateToken(TokenType.BitwiseXorEqual, input.Position.Column, input.Position.Line, lexeme.ToString());
+                        }
+                        return CreateToken(TokenType.BitwiseXor, input.Position.Column, input.Position.Line, lexeme.ToString());
                     case '%':
                         lexeme.Append(currentChar);
+                        nextChar = PeekNextChar();
+                        if (nextChar == '=')
+                        {
+                            GetNextChar();
+                            lexeme.Append(nextChar);
+                            return CreateToken(TokenType.ModulusEqual, input.Position.Column, input.Position.Line, lexeme.ToString());
+                        }
                         return CreateToken(TokenType.Modulus, input.Position.Column, input.Position.Line, lexeme.ToString());
                     case ':':
                         lexeme.Append(currentChar);
+                        nextChar = PeekNextChar();
+                        if (nextChar == '=')
+                        {
+                            GetNextChar();
+                            lexeme.Append(nextChar);
+                            return CreateToken(TokenType.ColonEqual, input.Position.Column, input.Position.Line, lexeme.ToString());
+                        }
                         return CreateToken(TokenType.Colon, input.Position.Column, input.Position.Line, lexeme.ToString());
                     case ',':
                         lexeme.Append(currentChar);
                         return CreateToken(TokenType.Comma, input.Position.Column, input.Position.Line, lexeme.ToString());
+                    case ';':
+                        lexeme.Append(currentChar);
+                        return CreateToken(TokenType.Semicolon, input.Position.Column, input.Position.Line, lexeme.ToString());
+                    case '{':
+                        lexeme.Append(currentChar);
+                        return CreateToken(TokenType.LeftCurly, input.Position.Column, input.Position.Line, lexeme.ToString());
+                    case '}':
+                        lexeme.Append(currentChar);
+                        return CreateToken(TokenType.RightCurly, input.Position.Column, input.Position.Line, lexeme.ToString());
+                    case '(':
+                        lexeme.Append(currentChar);
+                        return CreateToken(TokenType.LeftParenthesis, input.Position.Column, input.Position.Line, lexeme.ToString());
+                    case ')':
+                        lexeme.Append(currentChar);
+                        return CreateToken(TokenType.RightParenthesis, input.Position.Column, input.Position.Line, lexeme.ToString());
+                    case '[':
+                        lexeme.Append(currentChar);
+                        return CreateToken(TokenType.LeftBracket, input.Position.Column, input.Position.Line, lexeme.ToString());
+                    case ']':
+                        lexeme.Append(currentChar);
+                        return CreateToken(TokenType.RightBracket, input.Position.Column, input.Position.Line, lexeme.ToString());
                     case '\0':
                         lexeme.Append(currentChar);
                         return CreateToken(TokenType.EOF, input.Position.Column, input.Position.Line, lexeme.ToString());
