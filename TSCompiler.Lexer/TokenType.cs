@@ -72,5 +72,6 @@ namespace TSCompiler.Lexer
         RightParenthesis,
         LeftBracket,
         RightBracket,
+        SingleQuote,
     }
 }

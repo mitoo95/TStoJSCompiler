@@ -278,6 +278,9 @@ namespace TSCompiler.Lexer
                     case ']':
                         lexeme.Append(currentChar);
                         return CreateToken(TokenType.RightBracket, input.Position.Column, input.Position.Line, lexeme.ToString());
+                    case '\'':
+                        lexeme.Append(currentChar);
+                        return CreateToken(TokenType.SingleQuote, input.Position.Column, input.Position.Line, lexeme.ToString());
                     case '\0':
                         lexeme.Append(currentChar);
                         return CreateToken(TokenType.EOF, input.Position.Column, input.Position.Line, lexeme.ToString());
