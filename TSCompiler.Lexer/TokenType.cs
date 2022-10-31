@@ -73,5 +73,8 @@ namespace TSCompiler.Lexer
         LeftBracket,
         RightBracket,
         SingleQuote,
+        LineComment,
+        BlockCommentStart,
+        BlockCommentEnd,
     }
 }
