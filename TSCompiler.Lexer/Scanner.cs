@@ -2,7 +2,7 @@
 
 namespace TSCompiler.Lexer
 {
-    public class Scanner
+    public class Scanner : IScanner
     {
         private Input input;
         private readonly Dictionary<string, TokenType> keywords;
