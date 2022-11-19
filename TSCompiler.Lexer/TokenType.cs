@@ -76,5 +76,7 @@ namespace TSCompiler.Lexer
         LineComment,
         BlockCommentStart,
         BlockCommentEnd,
+        ArrowFunction,
+        ImportKeyword,
     }
 }
