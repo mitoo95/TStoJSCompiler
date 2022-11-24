@@ -2,7 +2,7 @@
 
 namespace TSCompiler.Lexer
 {
-    public class Scanner
+    public class Scanner : IScanner
     {
         private Input input;
         private readonly Dictionary<string, TokenType> keywords;
@@ -35,6 +35,7 @@ namespace TSCompiler.Lexer
                 {"in", TokenType.InKeyword },
                 {"of", TokenType.OfKeyword },
                 {"do", TokenType.DoKeyword },
+                {"import", TokenType.ImportKeyword },
             };
         }
 
@@ -141,6 +142,12 @@ namespace TSCompiler.Lexer
                             lexeme.Append(nextChar);
                             return CreateToken(TokenType.MultEqual, input.Position.Column, input.Position.Line, lexeme.ToString());
                         }
+                        if (nextChar == '/')
+                        {
+                            GetNextChar();
+                            lexeme.Append(nextChar);
+                            return CreateToken(TokenType.BlockCommentEnd, input.Position.Column, input.Position.Line, lexeme.ToString());
+                        }
                         return CreateToken(TokenType.Mult, input.Position.Column, input.Position.Line, lexeme.ToString());
                     case '/':
                         lexeme.Append(currentChar);
@@ -150,6 +157,18 @@ namespace TSCompiler.Lexer
                             GetNextChar();
                             lexeme.Append(nextChar);
                             return CreateToken(TokenType.DivisionEqual, input.Position.Column, input.Position.Line, lexeme.ToString());
+                        }
+                        if (nextChar == '/')
+                        {
+                            GetNextChar();
+                            lexeme.Append(nextChar);
+                            return CreateToken(TokenType.LineComment, input.Position.Column, input.Position.Line, lexeme.ToString());
+                        }
+                        if (nextChar == '*')
+                        {
+                            GetNextChar();
+                            lexeme.Append(nextChar);
+                            return CreateToken(TokenType.BlockCommentStart, input.Position.Column, input.Position.Line, lexeme.ToString());
                         }
                         return CreateToken(TokenType.Division, input.Position.Column, input.Position.Line, lexeme.ToString());
                     case '<':
@@ -180,6 +199,12 @@ namespace TSCompiler.Lexer
                             GetNextChar();
                             lexeme.Append(nextChar);
                             return CreateToken(TokenType.Equality, input.Position.Column, input.Position.Line, lexeme.ToString());
+                        }
+                        if (nextChar == '>')
+                        {
+                            GetNextChar();
+                            lexeme.Append(nextChar);
+                            return CreateToken(TokenType.ArrowFunction, input.Position.Column, input.Position.Line, lexeme.ToString());
                         }
                         return CreateToken(TokenType.Equal, input.Position.Column, input.Position.Line, lexeme.ToString());
                     case '!':
