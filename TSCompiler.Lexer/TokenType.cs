@@ -78,5 +78,8 @@ namespace TSCompiler.Lexer
         BlockCommentEnd,
         ArrowFunction,
         ImportKeyword,
+        FromKeyword,
+        ModuleKeyword,
+        MainKeyword,
     }
 }
