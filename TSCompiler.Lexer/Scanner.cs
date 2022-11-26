@@ -36,6 +36,7 @@ namespace TSCompiler.Lexer
                 {"of", TokenType.OfKeyword },
                 {"do", TokenType.DoKeyword },
                 {"import", TokenType.ImportKeyword },
+                {"main", TokenType.MainKeyword },
             };
         }
 
