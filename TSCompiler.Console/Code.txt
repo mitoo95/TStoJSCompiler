@@ -1,1 +1,1 @@
-﻿let d:number[10];
+﻿const calculateValue = (num:number): number => {}

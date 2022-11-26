@@ -1,4 +1,6 @@
-﻿using System.Linq.Expressions;
+﻿using LanguageCompiler.Core;
+using System.Linq.Expressions;
+using System.Reflection.PortableExecutable;
 using TSCompiler.Lexer;
 
 namespace TSCompiler.Parser
@@ -18,18 +20,19 @@ namespace TSCompiler.Parser
             this.lookAhead = this.scanner.GetNextToken();
         }
 
-        public void Parse()
+        public Statement Parse()
         {
-            Code();
+            return Code();
         }
 
-        private void Code()
+        private Statement Code()
         {
-            Imports();
+            Imports(); //no va en arbol
             //Comments();
             Declarations();
-            Statements();
+            var statements = Statements();
             Main();
+            return statements;
         }
 
         private void Main()
@@ -71,8 +74,8 @@ namespace TSCompiler.Parser
             switch (this.lookAhead.TokenType)
             {
                 case TokenType.Id:
-                    Match(TokenType.Id);
-                    AssignationIncrementDecrementStatement();
+                    Id_Statement();
+                    //AssignationIncrementDecrementStatement();
                     break;
                 case TokenType.WhileKeyword:
                     WhileStatement();
@@ -93,10 +96,10 @@ namespace TSCompiler.Parser
                     ContinueStatement();
                     break;
                 case TokenType.PlusPlus:
-                    PrefixIncrementDecrementStatement();
+                    IncrementStatement();
                     break;
                 case TokenType.MinusMinus:
-                    PrefixIncrementDecrementStatement();
+                    DecrementStatement();
                     break;
                 case TokenType.FunctionKeyword:
                     FunctionStatement();
@@ -104,47 +107,110 @@ namespace TSCompiler.Parser
             }
         }
 
-        private void PrefixIncrementDecrementStatement()
+        private void Id_Statement()
         {
-            if(this.lookAhead.TokenType == TokenType.PlusPlus)
-            {
-                Match(TokenType.PlusPlus);
-                Match(TokenType.Id);
-                Match(TokenType.Semicolon);
-            }
-            if (this.lookAhead.TokenType == TokenType.MinusMinus)
-            {
-                Match(TokenType.MinusMinus);
-                Match(TokenType.Id);
-                Match(TokenType.Semicolon);
-            }
+            Match(TokenType.Id);
+            Id_Statement_Prime();
         }
 
-        private void AssignationIncrementDecrementStatement()
+        private void Id_Statement_Prime()
         {
-            if(this.lookAhead.TokenType == TokenType.Equal)
+            if (this.lookAhead.TokenType == TokenType.Equal)
             {
                 AssignationStatement();
             }
-            else
-            {
-                PostfixIncrementDecrementStatement();
-            }
-        }
-
-        private void PostfixIncrementDecrementStatement()
-        {
             if(this.lookAhead.TokenType == TokenType.PlusPlus)
             {
-                Match(TokenType.PlusPlus);
-                Match(TokenType.Semicolon);
+                IncrementStatement();
             }
             if(this.lookAhead.TokenType == TokenType.MinusMinus)
             {
-                Match(TokenType.MinusMinus);
+                DecrementStatement();
+            }
+
+        }
+
+        private void DecrementStatement()
+        {
+            Match(TokenType.MinusMinus);
+            DecrementStatementPrime();
+        }
+
+        private void DecrementStatementPrime()
+        {
+            if (this.lookAhead.TokenType == TokenType.Id)
+            {
+                Match(TokenType.Id);
+                Match(TokenType.Semicolon);
+            }
+            else
+            {
                 Match(TokenType.Semicolon);
             }
         }
+
+        private void IncrementStatement()
+        {
+            Match(TokenType.PlusPlus);
+            IncrementStatementPrime();
+        }
+
+        private void IncrementStatementPrime()
+        {
+            if(this.lookAhead.TokenType == TokenType.Id)
+            {
+                Match(TokenType.Id);
+                Match(TokenType.Semicolon);
+            }
+            else
+            {
+                Match(TokenType.Semicolon);
+            }
+        }
+
+
+
+        //private void PrefixIncrementDecrementStatement()
+        //{
+        //    if(this.lookAhead.TokenType == TokenType.PlusPlus)
+        //    {
+        //        Match(TokenType.PlusPlus);
+        //        Match(TokenType.Id);
+        //        Match(TokenType.Semicolon);
+        //    }
+        //    if (this.lookAhead.TokenType == TokenType.MinusMinus)
+        //    {
+        //        Match(TokenType.MinusMinus);
+        //        Match(TokenType.Id);
+        //        Match(TokenType.Semicolon);
+        //    }
+        //}
+
+        //private void AssignationIncrementDecrementStatement()
+        //{
+        //    if(this.lookAhead.TokenType == TokenType.Equal)
+        //    {
+        //        AssignationStatement();
+        //    }
+        //    else
+        //    {
+        //        PostfixIncrementDecrementStatement();
+        //    }
+        //}
+
+        //private void PostfixIncrementDecrementStatement()
+        //{
+        //    if(this.lookAhead.TokenType == TokenType.PlusPlus)
+        //    {
+        //        Match(TokenType.PlusPlus);
+        //        Match(TokenType.Semicolon);
+        //    }
+        //    if(this.lookAhead.TokenType == TokenType.MinusMinus)
+        //    {
+        //        Match(TokenType.MinusMinus);
+        //        Match(TokenType.Semicolon);
+        //    }
+        //}
 
         private void AssignationStatement()
         {
@@ -156,7 +222,7 @@ namespace TSCompiler.Parser
             switch (this.lookAhead.TokenType)
             {
                 case TokenType.Equal:
-                    AssignationStatementPrimePrime();
+                    AssignEquals();
                     break;
                 case TokenType.BitwiseOrEqual:
                     Match(TokenType.BitwiseOrEqual);
@@ -189,19 +255,36 @@ namespace TSCompiler.Parser
             }
         }
 
-        private void AssignationStatementPrimePrime()
+        private void AssignEquals()
         {
-            if (this.lookAhead.TokenType == TokenType.LeftBracket)
+            Match(TokenType.Equal);
+            AssignEqualsPrime();
+        }
+
+        private void AssignEqualsPrime()
+        {
+            if(this.lookAhead.TokenType == TokenType.LeftBracket)
             {
                 Match(TokenType.LeftBracket);
-                //array elements
+                Expression();
                 Match(TokenType.RightBracket);
             }
-            else
-            {
-                LogicalOrExpression();
-            }
+            LogicalOrExpression();
         }
+
+        //private void AssignationStatementPrimePrime()
+        //{
+        //    if (this.lookAhead.TokenType == TokenType.LeftBracket)
+        //    {
+        //        Match(TokenType.LeftBracket);
+        //        //array elements
+        //        Match(TokenType.RightBracket);
+        //    }
+        //    else
+        //    {
+        //        LogicalOrExpression();
+        //    }
+        //}
 
         private void FunctionStatement()
         {
@@ -218,22 +301,6 @@ namespace TSCompiler.Parser
                 Statement();
                 Match(TokenType.RightCurly);
             }
-            else
-            {
-                VarDeclaration();
-                Match(TokenType.Id);
-                Match(TokenType.Equal);
-                Match(TokenType.LeftParenthesis);
-                Params();
-                Match(TokenType.RightParenthesis);
-                Match(TokenType.Colon);
-                Type();
-                Match(TokenType.ArrowFunction);
-                Match(TokenType.LeftCurly);
-                Statement();
-                Match(TokenType.RightCurly);
-            }
-
             //WIP
         }
 
@@ -489,8 +556,6 @@ namespace TSCompiler.Parser
         {
             VarDeclaration();
             Match(TokenType.Id);
-            Match(TokenType.Colon);
-            Type();
             DeclarationPrime();
         }
 
@@ -500,14 +565,37 @@ namespace TSCompiler.Parser
             {
                 case TokenType.Semicolon:
                     Match(TokenType.Semicolon);
+                    Type();
+                    DeclarationPrimePrime();
                     break;
 
                 default:
-                    Match(TokenType.LeftBracket);
-                    Expression(); //test
-                    Match(TokenType.RightBracket);
-                    Match(TokenType.Semicolon);
+                    Match(TokenType.Equal);
+                    Match(TokenType.LeftParenthesis);
+                    Params();
+                    Match(TokenType.RightParenthesis);
+                    Match(TokenType.Colon);
+                    Type();
+                    Match(TokenType.ArrowFunction);
+                    Match(TokenType.LeftCurly);
+                    Statement();
+                    Match(TokenType.RightCurly);
                     break;
+            }
+        }
+
+        private void DeclarationPrimePrime()
+        {
+            if(this.lookAhead.TokenType == TokenType.LeftBracket)
+            {
+                Match(TokenType.LeftBracket);
+                Expression();
+                Match(TokenType.RightBracket);
+                Match(TokenType.Semicolon);
+            }
+            else
+            {
+                Match(TokenType.Semicolon);
             }
         }
 
