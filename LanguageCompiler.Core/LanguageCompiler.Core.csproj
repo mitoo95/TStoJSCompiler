@@ -6,9 +6,4 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\LanguageCompiler.Core\LanguageCompiler.Core.csproj" />
-    <ProjectReference Include="..\TSCompiler.Lexer\TSCompiler.Lexer.csproj" />
-  </ItemGroup>
-
 </Project>
