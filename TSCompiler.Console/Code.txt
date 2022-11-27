@@ -1,1 +1,3 @@
-﻿const calculateValue = (num:number): number => {}
+﻿let a:boolean = true;
+let b:number = 1;
+return b;

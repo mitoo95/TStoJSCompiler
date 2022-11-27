@@ -20,19 +20,46 @@ namespace TSCompiler.Parser
             this.lookAhead = this.scanner.GetNextToken();
         }
 
-        public Statement Parse()
+        public /*Statement*/ void Parse()
         {
-            return Code();
+            /*return*/ Code();
         }
 
-        private Statement Code()
+        private /*Statement*/ void Code()
         {
             Imports(); //no va en arbol
-            //Comments();
-            Declarations();
-            var statements = Statements();
+            Block();
             Main();
-            return statements;
+            //return statements;
+            
+        }
+
+        private void Block()
+        {
+            
+            if (this.lookAhead.TokenType == TokenType.VarKeyword || this.lookAhead.TokenType == TokenType.ConstKeyword || this.lookAhead.TokenType == TokenType.LetKeyword)
+            {
+                Declarations();
+                Block();
+            }
+            if (this.lookAhead.TokenType == TokenType.Id || this.lookAhead.TokenType == TokenType.IfKeyword
+            || this.lookAhead.TokenType == TokenType.WhileKeyword || this.lookAhead.TokenType == TokenType.ForKeyword
+            || this.lookAhead.TokenType == TokenType.ReturnKeyword || this.lookAhead.TokenType == TokenType.BreakKeyword
+            || this.lookAhead.TokenType == TokenType.ContinueKeyword || this.lookAhead.TokenType == TokenType.PlusPlus
+            || this.lookAhead.TokenType == TokenType.MinusMinus || this.lookAhead.TokenType == TokenType.FunctionKeyword)
+            {
+                Statements();
+                Block();
+            }
+            //if(this.lookAhead.TokenType == TokenType.LineComment || this.lookAhead.TokenType == TokenType.BlockCommentStart)
+            //{
+            //    Comments();
+            //    Block();
+            //}Preguntar al ing el lunes
+
+
+            //εps
+
         }
 
         private void Main()
@@ -44,10 +71,7 @@ namespace TSCompiler.Parser
                 Match(TokenType.LeftParenthesis);
                 Match(TokenType.RightParenthesis);
                 Match(TokenType.LeftCurly);
-                Comments();
-                Declarations();
-                Statements();
-                LogicalOrExpression();
+                Block();
                 Match(TokenType.RightCurly);
             }
         }
@@ -58,9 +82,7 @@ namespace TSCompiler.Parser
                 || this.lookAhead.TokenType == TokenType.WhileKeyword || this.lookAhead.TokenType == TokenType.ForKeyword
                 || this.lookAhead.TokenType == TokenType.ReturnKeyword || this.lookAhead.TokenType == TokenType.BreakKeyword
                 || this.lookAhead.TokenType == TokenType.ContinueKeyword || this.lookAhead.TokenType == TokenType.PlusPlus
-                || this.lookAhead.TokenType == TokenType.MinusMinus || this.lookAhead.TokenType == TokenType.FunctionKeyword ||
-                this.lookAhead.TokenType == TokenType.VarKeyword || this.lookAhead.TokenType == TokenType.LetKeyword
-                || this.lookAhead.TokenType == TokenType.ConstKeyword)
+                || this.lookAhead.TokenType == TokenType.MinusMinus || this.lookAhead.TokenType == TokenType.FunctionKeyword)
             {
                 Statement();
                 Statements();
@@ -168,50 +190,6 @@ namespace TSCompiler.Parser
             }
         }
 
-
-
-        //private void PrefixIncrementDecrementStatement()
-        //{
-        //    if(this.lookAhead.TokenType == TokenType.PlusPlus)
-        //    {
-        //        Match(TokenType.PlusPlus);
-        //        Match(TokenType.Id);
-        //        Match(TokenType.Semicolon);
-        //    }
-        //    if (this.lookAhead.TokenType == TokenType.MinusMinus)
-        //    {
-        //        Match(TokenType.MinusMinus);
-        //        Match(TokenType.Id);
-        //        Match(TokenType.Semicolon);
-        //    }
-        //}
-
-        //private void AssignationIncrementDecrementStatement()
-        //{
-        //    if(this.lookAhead.TokenType == TokenType.Equal)
-        //    {
-        //        AssignationStatement();
-        //    }
-        //    else
-        //    {
-        //        PostfixIncrementDecrementStatement();
-        //    }
-        //}
-
-        //private void PostfixIncrementDecrementStatement()
-        //{
-        //    if(this.lookAhead.TokenType == TokenType.PlusPlus)
-        //    {
-        //        Match(TokenType.PlusPlus);
-        //        Match(TokenType.Semicolon);
-        //    }
-        //    if(this.lookAhead.TokenType == TokenType.MinusMinus)
-        //    {
-        //        Match(TokenType.MinusMinus);
-        //        Match(TokenType.Semicolon);
-        //    }
-        //}
-
         private void AssignationStatement()
         {
             AssignationStatementPrime();
@@ -270,21 +248,8 @@ namespace TSCompiler.Parser
                 Match(TokenType.RightBracket);
             }
             LogicalOrExpression();
+            Match(TokenType.Semicolon);
         }
-
-        //private void AssignationStatementPrimePrime()
-        //{
-        //    if (this.lookAhead.TokenType == TokenType.LeftBracket)
-        //    {
-        //        Match(TokenType.LeftBracket);
-        //        //array elements
-        //        Match(TokenType.RightBracket);
-        //    }
-        //    else
-        //    {
-        //        LogicalOrExpression();
-        //    }
-        //}
 
         private void FunctionStatement()
         {
@@ -298,7 +263,7 @@ namespace TSCompiler.Parser
                 Match(TokenType.Colon);
                 Type();
                 Match(TokenType.LeftCurly);
-                Statement();
+                Block();
                 Match(TokenType.RightCurly);
             }
             //WIP
@@ -353,7 +318,7 @@ namespace TSCompiler.Parser
             Match(TokenType.LeftParenthesis);
             LogicalOrExpression();
             Match(TokenType.RightParenthesis);
-            Statement();
+            Block();
         }
 
         private void IfStatement()
@@ -363,7 +328,7 @@ namespace TSCompiler.Parser
             LogicalOrExpression();
             Match(TokenType.RightParenthesis);
             Match(TokenType.LeftCurly);
-            Statement();
+            Block();
             Match(TokenType.RightCurly);
             IfStatementPrime();
         }
@@ -374,7 +339,7 @@ namespace TSCompiler.Parser
             {
                 Match(TokenType.ElseKeyword);
                 Match(TokenType.LeftCurly);
-                Statement();
+                Block();
                 Match(TokenType.RightCurly);
             }
             //eps
@@ -527,6 +492,12 @@ namespace TSCompiler.Parser
                 case TokenType.NumberConst:
                     Match(TokenType.NumberConst);
                     break;
+                case TokenType.TrueKeyword:
+                    Match(TokenType.TrueKeyword);
+                    break;
+                case TokenType.FalseKeyword:
+                    Match(TokenType.FalseKeyword);
+                    break;
                 default:
                     Match(TokenType.Id);
                     break;
@@ -539,7 +510,7 @@ namespace TSCompiler.Parser
             Match(TokenType.LeftParenthesis);
             LogicalOrExpression();
             Match(TokenType.RightParenthesis);
-            Statement();
+            Block();
         }
 
         private void Declarations()
@@ -563,8 +534,8 @@ namespace TSCompiler.Parser
         {
             switch (this.lookAhead.TokenType)
             {
-                case TokenType.Semicolon:
-                    Match(TokenType.Semicolon);
+                case TokenType.Colon:
+                    Match(TokenType.Colon);
                     Type();
                     DeclarationPrimePrime();
                     break;
@@ -578,7 +549,7 @@ namespace TSCompiler.Parser
                     Type();
                     Match(TokenType.ArrowFunction);
                     Match(TokenType.LeftCurly);
-                    Statement();
+                    Block();
                     Match(TokenType.RightCurly);
                     break;
             }
@@ -592,6 +563,10 @@ namespace TSCompiler.Parser
                 Expression();
                 Match(TokenType.RightBracket);
                 Match(TokenType.Semicolon);
+            }
+            if(this.lookAhead.TokenType == TokenType.Equal)
+            {
+                AssignEquals();
             }
             else
             {
