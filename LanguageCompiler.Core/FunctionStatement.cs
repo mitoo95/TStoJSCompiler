@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace LanguageCompiler.Core
 {
-    public class ExpressionType
+    public class FunctionStatement : Statement
     {
+
     }
 }
