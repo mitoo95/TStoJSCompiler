@@ -12,7 +12,7 @@ namespace TSCompiler.Lexer
             this.input = input;
             this.keywords = new Dictionary<string, TokenType>
             {
-                {"number", TokenType.NumberKeyword },
+                {"number", TokenType.NumberConst },
                 {"string", TokenType.StringKeyword },
                 {"boolean", TokenType.BooleanKeyword },
                 {"void", TokenType.VoidKeyword },

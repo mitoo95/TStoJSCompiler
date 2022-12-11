@@ -4,7 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+<<<<<<< Updated upstream:TSCompiler.Lexer/TokenType.cs
 namespace TSCompiler.Lexer
+=======
+namespace TSCompiler.Core
+>>>>>>> Stashed changes:LanguageCompiler.Core/TokenType.cs
 {
     public enum TokenType
     {
@@ -32,7 +36,6 @@ namespace TSCompiler.Lexer
         WhileKeyword,
         StringKeyword,
         NumberConst,
-        NumberKeyword,
         BooleanKeyword,
         VoidKeyword,
         NullKeyword,
@@ -81,5 +84,6 @@ namespace TSCompiler.Lexer
         FromKeyword,
         ModuleKeyword,
         MainKeyword,
+        BasicType,
     }
 }

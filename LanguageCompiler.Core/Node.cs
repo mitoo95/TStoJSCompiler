@@ -1,4 +1,4 @@
-﻿namespace LanguageCompiler.Core
+﻿namespace TSCompiler.Core
 {
     public class Node
     {

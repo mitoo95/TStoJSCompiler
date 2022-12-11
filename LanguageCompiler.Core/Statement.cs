@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LanguageCompiler.Core
+namespace TSCompiler.Core
 {
     public class Statement
     {

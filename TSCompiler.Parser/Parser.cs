@@ -1,6 +1,6 @@
-﻿using LanguageCompiler.Core;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using System.Reflection.PortableExecutable;
+using TSCompiler.Core;
 using TSCompiler.Lexer;
 
 namespace TSCompiler.Parser
@@ -106,26 +106,19 @@ namespace TSCompiler.Parser
                     IfStatement();
                     break;
                 case TokenType.ForKeyword:
-                    ForStatement();
-                    break;
+                    return ForStatement();
                 case TokenType.ReturnKeyword:
-                    ReturnStatement();
-                    break;
+                    return ReturnStatement();
                 case TokenType.BreakKeyword:
-                    BreakStatement();
-                    break;
+                    return BreakStatement();
                 case TokenType.ContinueKeyword:
-                    ContinueStatement();
-                    break;
+                    return ContinueStatement();
                 case TokenType.PlusPlus:
-                    IncrementStatement();
-                    break;
+                    return IncrementStatement();
                 case TokenType.MinusMinus:
-                    DecrementStatement();
-                    break;
+                    return DecrementStatement();
                 case TokenType.FunctionKeyword:
-                    FunctionStatement();
-                    break;
+                    return FunctionStatement();
             }
         }
 
@@ -149,12 +142,17 @@ namespace TSCompiler.Parser
             {
                 DecrementStatement();
             }
+<<<<<<< Updated upstream
 
+=======
+            return null;
+>>>>>>> Stashed changes
         }
 
         private void DecrementStatement()
         {
             Match(TokenType.MinusMinus);
+<<<<<<< Updated upstream
             DecrementStatementPrime();
         }
 
@@ -169,11 +167,15 @@ namespace TSCompiler.Parser
             {
                 Match(TokenType.Semicolon);
             }
+=======
+            Match(TokenType.Semicolon);
+>>>>>>> Stashed changes
         }
 
         private void IncrementStatement()
         {
             Match(TokenType.PlusPlus);
+<<<<<<< Updated upstream
             IncrementStatementPrime();
         }
 
@@ -191,6 +193,13 @@ namespace TSCompiler.Parser
         }
 
         private void AssignationStatement()
+=======
+            Match(TokenType.Semicolon);
+            //que retornamos aqui?
+        }
+
+        private Statement AssignationStatement(IdExpression id)
+>>>>>>> Stashed changes
         {
             AssignationStatementPrime();
         }
@@ -258,67 +267,80 @@ namespace TSCompiler.Parser
                 Match(TokenType.FunctionKeyword);
                 Match(TokenType.Id);
                 Match(TokenType.LeftParenthesis);
-                Params();
+                var expr = Params();
                 Match(TokenType.RightParenthesis);
                 Match(TokenType.Colon);
-                Type();
+                var expr2 = Type();
                 Match(TokenType.LeftCurly);
-                Block();
+                var stmt = Block();
                 Match(TokenType.RightCurly);
+                return new FunctionStatement(expr, expr2, stmt);
             }
             //WIP
         }
 
-        private void Params()
+        private List<Expresion> Params()
         {
-            Param();
-            ParamsPrime();
+            var expressions = new List<Expresion>();
+            expressions.Add(Param()); 
+            expressions.AddRange(Params());
+            return expressions;
         }
 
-        private void ParamsPrime()
+        private List<Expresion> ParamsPrime()
         {
+            var expressions = new List<Expresion>();
             if(this.lookAhead.TokenType == TokenType.Comma)
             {
                 Match(TokenType.Comma);
-                Params();
+                expressions = Params();
+
             }
-            //eps
+            return expressions;
         }
 
-        private void Param()
+        private Expresion Param()
         {
             Match(TokenType.Id);
             Match(TokenType.Colon);
             Type();
         }
 
-        private void ContinueStatement()
+        private Statement ContinueStatement()
         {
             Match(TokenType.ContinueKeyword);
             Match(TokenType.Semicolon);
+            return null;
         }
 
-        private void BreakStatement()
+        private Statement BreakStatement()
         {
             Match(TokenType.BreakKeyword);
             Match(TokenType.Semicolon);
+            return null;
         }
 
-        private void ReturnStatement()
+        private Statement ReturnStatement()
         {
             Match(TokenType.ReturnKeyword);
-            LogicalOrExpression();
+            var expr = LogicalOrExpression();
             Match(TokenType.Semicolon);
+            return new ReturnStatement(expr);
             //WIP
         }
 
+<<<<<<< Updated upstream
         private void ForStatement()
+=======
+        //pregunta
+        private Statement ForStatement()
+>>>>>>> Stashed changes
         {
             Match(TokenType.ForKeyword);
             Match(TokenType.LeftParenthesis);
-            LogicalOrExpression();
+            var expression = LogicalOrExpression();
             Match(TokenType.RightParenthesis);
-            Block();
+            return new ForStatement(expression, Block());
         }
 
         private void IfStatement()
@@ -486,17 +508,23 @@ namespace TSCompiler.Parser
             {
                 case TokenType.LeftParenthesis:
                     Match(TokenType.LeftParenthesis);
-                    Expression();
+                    var expr = Expression();
                     Match(TokenType.RightParenthesis);
-                    break;
+                    return expr;
                 case TokenType.NumberConst:
+                    var token = this.lookAhead;
                     Match(TokenType.NumberConst);
+                    var constant = new ConstantExpresion(ExpresionType.Number, token);
                     break;
                 case TokenType.TrueKeyword:
+                    token = this.lookAhead;
                     Match(TokenType.TrueKeyword);
+                    var constant = new ConstantExpresion(ExpresionType.Boolean, token);
                     break;
                 case TokenType.FalseKeyword:
+                    token = this.lookAhead;
                     Match(TokenType.FalseKeyword);
+                    var constant = new ConstantExpresion(ExpresionType.Boolean, token);
                     break;
                 default:
                     Match(TokenType.Id);
@@ -574,20 +602,26 @@ namespace TSCompiler.Parser
             }
         }
 
-        private void Type()
+        private Expresion Type()
         {
             switch (this.lookAhead.TokenType)
             {
-                case TokenType.NumberKeyword:
-                    Match(TokenType.NumberKeyword);
+                case TokenType.NumberConst:
+                    var token = this.lookAhead;
+                    Match(TokenType.NumberConst);
+                    var constant = new ConstantExpresion(ExpresionType.Number, token);
                     TypePrime();
                     break;
                 case TokenType.BooleanKeyword:
+                    token = this.lookAhead;
                     Match(TokenType.BooleanKeyword);
+                    constant = new ConstantExpresion(ExpresionType.Boolean, token);
                     TypePrime();
                     break;
                 default:
+                    token = this.lookAhead;
                     Match(TokenType.StringKeyword);
+                    constant = new ConstantExpresion(ExpresionType.String, token);
                     TypePrime();
                     break;
             }
