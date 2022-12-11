@@ -6,8 +6,7 @@ using System.Threading.Tasks;
 
 namespace LanguageCompiler.Core
 {
-    public class Expression
+    public class ExpresionType
     {
-
     }
 }

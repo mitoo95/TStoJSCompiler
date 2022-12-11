@@ -8,6 +8,7 @@ namespace TSCompiler.Parser
     public class Parser
     {
         public readonly IScanner scanner;
+
         private Token lookAhead;
         public Parser(IScanner scanner)
         {
@@ -20,25 +21,26 @@ namespace TSCompiler.Parser
             this.lookAhead = this.scanner.GetNextToken();
         }
 
-        public /*Statement*/ void Parse()
+        public Statement Parse()
         {
-            /*return*/ Code();
+            return Code();
         }
 
-        private /*Statement*/ void Code()
+        private Statement Code()
         {
-            Imports(); //no va en arbol
-            Block();
-            Main();
-            //return statements;
-            
+            var import = Imports();
+            var block = Block();
+            var main = Main();
+
+            return new ReturnCode(import,block,main);
         }
 
-        private void Block()
+        private Statement Block()
         {
             
             if (this.lookAhead.TokenType == TokenType.VarKeyword || this.lookAhead.TokenType == TokenType.ConstKeyword || this.lookAhead.TokenType == TokenType.LetKeyword)
             {
+                //ignorar por los momentos
                 Declarations();
                 Block();
             }
@@ -48,21 +50,21 @@ namespace TSCompiler.Parser
             || this.lookAhead.TokenType == TokenType.ContinueKeyword || this.lookAhead.TokenType == TokenType.PlusPlus
             || this.lookAhead.TokenType == TokenType.MinusMinus || this.lookAhead.TokenType == TokenType.FunctionKeyword)
             {
-                Statements();
-                Block();
+                var statements = Statements();
+                var block = Block();
+
+                return new SequenceStatement(statements, block);
             }
             //if(this.lookAhead.TokenType == TokenType.LineComment || this.lookAhead.TokenType == TokenType.BlockCommentStart)
             //{
             //    Comments();
             //    Block();
             //}Preguntar al ing el lunes
-
-
             //εps
-
+            return null;
         }
 
-        private void Main()
+        private Statement Main()
         {
             if (this.lookAhead.TokenType == TokenType.FunctionKeyword)
             {
@@ -71,12 +73,14 @@ namespace TSCompiler.Parser
                 Match(TokenType.LeftParenthesis);
                 Match(TokenType.RightParenthesis);
                 Match(TokenType.LeftCurly);
-                Block();
+                var statement = Block();
                 Match(TokenType.RightCurly);
+                return statement;
             }
+                return null;
         }
 
-        private void Statements()
+        private Statement Statements()
         {
             if (this.lookAhead.TokenType == TokenType.Id || this.lookAhead.TokenType == TokenType.IfKeyword
                 || this.lookAhead.TokenType == TokenType.WhileKeyword || this.lookAhead.TokenType == TokenType.ForKeyword
@@ -84,27 +88,24 @@ namespace TSCompiler.Parser
                 || this.lookAhead.TokenType == TokenType.ContinueKeyword || this.lookAhead.TokenType == TokenType.PlusPlus
                 || this.lookAhead.TokenType == TokenType.MinusMinus || this.lookAhead.TokenType == TokenType.FunctionKeyword)
             {
-                Statement();
-                Statements();
+                var current = Statement();
+                var next = Statements();
+                return new SequenceStatement(current, next);
             }
-            //eps
-            //revisar 
+            return null;
         }
 
-        private void Statement()
+        private Statement Statement()
         {
             switch (this.lookAhead.TokenType)
             {
                 case TokenType.Id:
-                    Id_Statement();
-                    //AssignationIncrementDecrementStatement();
-                    break;
+                    var statement = Id_Statement();
+                    return statement;
                 case TokenType.WhileKeyword:
-                    WhileStatement();
-                    break;
+                    return WhileStatement();
                 case TokenType.IfKeyword:
-                    IfStatement();
-                    break;
+                    return IfStatement();
                 case TokenType.ForKeyword:
                     ForStatement();
                     break;
@@ -129,36 +130,41 @@ namespace TSCompiler.Parser
             }
         }
 
-        private void Id_Statement()
+        private Statement Id_Statement()
         {
+            IdExpression id = new IdExpression(this.lookAhead.Lexeme, null);
             Match(TokenType.Id);
-            Id_Statement_Prime();
+            var statement = Id_Statement_Prime(id);
+            return statement;
         }
 
-        private void Id_Statement_Prime()
+        private Statement Id_Statement_Prime(IdExpression id)
         {
             if (this.lookAhead.TokenType == TokenType.Equal)
             {
-                AssignationStatement();
+                var statement = AssignationStatement(id);
+                return statement;
             }
             if(this.lookAhead.TokenType == TokenType.PlusPlus)
             {
-                IncrementStatement();
+                IncrementStatement(id);
+                return null;
             }
             if(this.lookAhead.TokenType == TokenType.MinusMinus)
             {
-                DecrementStatement();
+                DecrementStatement(id);
+                return null;
             }
-
         }
 
-        private void DecrementStatement()
+        private Statement DecrementStatement(IdExpression id)
         {
             Match(TokenType.MinusMinus);
-            DecrementStatementPrime();
+            DecrementStatementPrime(id);
+            return null;
         }
 
-        private void DecrementStatementPrime()
+        private Statement DecrementStatementPrime(IdExpression id)
         {
             if (this.lookAhead.TokenType == TokenType.Id)
             {
@@ -169,77 +175,89 @@ namespace TSCompiler.Parser
             {
                 Match(TokenType.Semicolon);
             }
+            return null;
         }
 
-        private void IncrementStatement()
+        //WIP
+        private Statement IncrementStatement(IdExpression id)
         {
             Match(TokenType.PlusPlus);
-            IncrementStatementPrime();
+            IncrementStatementPrime(id);
+            return null;
+            //que retornamos aqui?
         }
 
-        private void IncrementStatementPrime()
+        private Statement IncrementStatementPrime(IdExpression id)
         {
+            //++id;
+            //preguntar
+            //WIP
             if(this.lookAhead.TokenType == TokenType.Id)
             {
                 Match(TokenType.Id);
                 Match(TokenType.Semicolon);
+                //return IncrementStatement(id);
             }
+            //id++;
             else
             {
                 Match(TokenType.Semicolon);
+                //return IncrementStatement(id);
             }
         }
 
-        private void AssignationStatement()
+        private Statement AssignationStatement(IdExpression id)
         {
-            AssignationStatementPrime();
+            var statement = AssignationStatementPrime(id);
+            return statement;
         }
 
-        private void AssignationStatementPrime()
+        private Statement AssignationStatementPrime(IdExpression id)
         {
             switch (this.lookAhead.TokenType)
             {
                 case TokenType.Equal:
-                    AssignEquals();
-                    break;
+                    return AssignEquals(id);
                 case TokenType.BitwiseOrEqual:
                     Match(TokenType.BitwiseOrEqual);
-                    LogicalOrExpression();
-                    break;
+                    var expression = LogicalOrExpression();
+                    return new AssignationStatement(id, expression);
                 case TokenType.BitwiseAndEqual:
                     Match(TokenType.BitwiseAndEqual);
-                    LogicalOrExpression();
-                    break;
+                    expression = LogicalOrExpression();
+                    return new AssignationStatement(id, expression);
                 case TokenType.BitwiseXorEqual:
                     Match(TokenType.BitwiseXorEqual);
-                    LogicalOrExpression();
-                    break;
+                    expression = LogicalOrExpression();
+                    return new AssignationStatement(id, expression);
                 case TokenType.PlusEqual:
                     Match(TokenType.PlusEqual);
-                    LogicalOrExpression();
-                    break;
+                    expression = LogicalOrExpression();
+                    return new AssignationStatement(id, expression);
                 case TokenType.MinusEqual:
                     Match(TokenType.MinusEqual);
-                    LogicalOrExpression();
-                    break;
+                    expression = LogicalOrExpression();
+                    return new AssignationStatement(id, expression);
                 case TokenType.DivisionEqual:
                     Match(TokenType.DivisionEqual);
-                    LogicalOrExpression();
-                    break;
+                    expression = LogicalOrExpression();
+                    return new AssignationStatement(id, expression);
                 default:
                     Match(TokenType.MultEqual);
-                    LogicalOrExpression();
-                    break;
+                    expression = LogicalOrExpression();
+                    return new AssignationStatement(id, expression);
             }
+            return null;
         }
 
-        private void AssignEquals()
+        private Statement AssignEquals(IdExpression id)
         {
             Match(TokenType.Equal);
-            AssignEqualsPrime();
+            var statement = AssignEqualsPrime(id);
+            return statement;
         }
 
-        private void AssignEqualsPrime()
+        private Statement AssignEqualsPrime(IdExpression id)
         {
             if(this.lookAhead.TokenType == TokenType.LeftBracket)
             {
@@ -247,8 +265,9 @@ namespace TSCompiler.Parser
                 Expression();
                 Match(TokenType.RightBracket);
             }
-            LogicalOrExpression();
+            var expression = LogicalOrExpression();
             Match(TokenType.Semicolon);
+            return new AssignationStatement(id, expression);
         }
 
         private void FunctionStatement()
@@ -312,6 +331,7 @@ namespace TSCompiler.Parser
             //WIP
         }
 
+        //pregunta
         private void ForStatement()
         {
             Match(TokenType.ForKeyword);
@@ -321,48 +341,54 @@ namespace TSCompiler.Parser
             Block();
         }
 
-        private void IfStatement()
+        private Statement IfStatement()
         {
             Match(TokenType.IfKeyword);
             Match(TokenType.LeftParenthesis);
-            LogicalOrExpression();
+            var expression = LogicalOrExpression();
             Match(TokenType.RightParenthesis);
             Match(TokenType.LeftCurly);
-            Block();
+            //true statement, no branch a else
+            var trueStatement = Block();
             Match(TokenType.RightCurly);
-            IfStatementPrime();
+            //si se va a else, retorna un false statement, de lo contrario retorna nulo
+            var falseStatement = IfStatementPrime();
+            //esta buena esta logica?
+            return new IfStatement(expression, trueStatement, falseStatement);
         }
 
-        private void IfStatementPrime()
+        private Statement IfStatementPrime()
         {
             if(this.lookAhead.TokenType == TokenType.ElseKeyword)
             {
                 Match(TokenType.ElseKeyword);
                 Match(TokenType.LeftCurly);
-                Block();
+                var falseStatement = Block();
                 Match(TokenType.RightCurly);
+                return falseStatement;
             }
             //eps
+            return null;
         }
 
-        private void LogicalOrExpression()
+        private Expresion LogicalOrExpression()
         {
-            LogicalAndExpression();
-            LogicalOrExpressionPrime();
+            var expression = LogicalAndExpression();
+            LogicalOrExpressionPrime(expression);
         }
 
-        private void LogicalOrExpressionPrime()
+        private Expresion LogicalOrExpressionPrime(Expresion expression)
         {
             if(this.lookAhead.TokenType == TokenType.Or)
             {
                 Match(TokenType.Or);
-                LogicalAndExpression();
+                expression = new LogicalOrExpression(expression,null);
                 LogicalOrExpressionPrime();
             }
             //eps
         }
 
-        private void LogicalAndExpression()
+        private Expresion LogicalAndExpression()
         {
             EqualityExpression();
             LogicalAndExpressionPrime();
@@ -477,7 +503,6 @@ namespace TSCompiler.Parser
                 Factor();
                 TermPrime();
             }
-            //eps
         }
 
         private void Factor()
@@ -504,13 +529,14 @@ namespace TSCompiler.Parser
             }
         }
 
-        private void WhileStatement()
+        private Statement WhileStatement()
         {
             Match(TokenType.WhileKeyword);
             Match(TokenType.LeftParenthesis);
-            LogicalOrExpression();
+            var expression = LogicalOrExpression();
             Match(TokenType.RightParenthesis);
-            Block();
+            var statement = Block();
+            return new WhileStatement(expression, statement);
         }
 
         private void Declarations()
@@ -644,7 +670,7 @@ namespace TSCompiler.Parser
             throw new NotImplementedException();
         }
 
-        private void Imports()
+        private Statement Imports()
         {
             if(this.lookAhead.TokenType == TokenType.ImportKeyword)
             {
