@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace TSCompiler.Core
 {
-    public class ConstantExpression : Expresion
+    public class ConstantExpresion : Expresion
     {
         public ExpresionType Type { get; set; }
         public Token Token { get; set; }
 
-        public ConstantExpression(ExpresionType type, Token token)
+        public ConstantExpresion(ExpresionType type, Token token)
         {
             Type = type;
             Token = token;

@@ -4,11 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-<<<<<<< Updated upstream:TSCompiler.Lexer/Token.cs
-namespace TSCompiler.Lexer
-=======
 namespace TSCompiler.Core
->>>>>>> Stashed changes:LanguageCompiler.Core/Token.cs
 {
     public class Token
     {

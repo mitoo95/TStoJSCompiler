@@ -10,9 +10,9 @@ namespace TSCompiler.Core
     {
 
         public IdExpression Id { get; set; }
-        public Expression Expression { get; set; }
+        public Expresion Expression { get; set; }
 
-        public AssignationStatement(IdExpression id, Expression expression)
+        public AssignationStatement(IdExpression id, Expresion expression)
         {
             Id = id;
             Expression = expression;

@@ -2,11 +2,7 @@
 
 namespace TSCompiler.Core
 {
-<<<<<<< Updated upstream:LanguageCompiler.Core/ExpressionType.cs
-    public class ExpressionType
-=======
     public class ExpresionType : IEquatable<ExpresionType>
->>>>>>> Stashed changes:LanguageCompiler.Core/ExpresionType.cs
     {
 
         public string Lexeme { get; set; }

@@ -13,5 +13,10 @@ namespace TSCompiler.Core
         {
 
         }
+
+        public override ExpresionType GetType()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

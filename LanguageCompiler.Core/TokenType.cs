@@ -4,11 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-<<<<<<< Updated upstream:TSCompiler.Lexer/TokenType.cs
-namespace TSCompiler.Lexer
-=======
 namespace TSCompiler.Core
->>>>>>> Stashed changes:LanguageCompiler.Core/TokenType.cs
 {
     public enum TokenType
     {

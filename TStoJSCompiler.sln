@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSCompiler.Console", "TSCom
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSCompiler.Parser", "TSCompiler.Parser\TSCompiler.Parser.csproj", "{FFB45B9D-E587-4150-841B-BD53D9F323C9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LanguageCompiler.Core", "LanguageCompiler.Core\LanguageCompiler.Core.csproj", "{1222C2A8-B1FF-4972-B064-F0E39E858E5E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSCompiler.Core", "LanguageCompiler.Core\TSCompiler.Core.csproj", "{1222C2A8-B1FF-4972-B064-F0E39E858E5E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
