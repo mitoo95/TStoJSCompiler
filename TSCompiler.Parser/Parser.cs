@@ -1,6 +1,4 @@
-﻿using System.Linq.Expressions;
-using System.Reflection.PortableExecutable;
-using TSCompiler.Core;
+﻿using TSCompiler.Core;
 using TSCompiler.Lexer;
 
 namespace TSCompiler.Parser
@@ -36,7 +34,7 @@ namespace TSCompiler.Parser
 
         private Statement Block()
         {
-            
+            IdExpression id = null;
             if (this.lookAhead.TokenType == TokenType.VarKeyword || this.lookAhead.TokenType == TokenType.ConstKeyword || this.lookAhead.TokenType == TokenType.LetKeyword)
             {
                 Declarations();
@@ -48,7 +46,8 @@ namespace TSCompiler.Parser
             || this.lookAhead.TokenType == TokenType.ContinueKeyword || this.lookAhead.TokenType == TokenType.PlusPlus
             || this.lookAhead.TokenType == TokenType.MinusMinus || this.lookAhead.TokenType == TokenType.FunctionKeyword)
             {
-                return new SequenceStatement(Statements(), Block());
+                id = new IdExpression(this.lookAhead.Lexeme, null);
+                return new SequenceStatement(Statements(id), Block());
             }
             //if(this.lookAhead.TokenType == TokenType.LineComment || this.lookAhead.TokenType == TokenType.BlockCommentStart)
             //{
@@ -77,7 +76,7 @@ namespace TSCompiler.Parser
             return null;
         }
 
-        private Statement Statements()
+        private Statement Statements(IdExpression id)
         {
             if (this.lookAhead.TokenType == TokenType.Id || this.lookAhead.TokenType == TokenType.IfKeyword
                 || this.lookAhead.TokenType == TokenType.WhileKeyword || this.lookAhead.TokenType == TokenType.ForKeyword
@@ -85,19 +84,19 @@ namespace TSCompiler.Parser
                 || this.lookAhead.TokenType == TokenType.ContinueKeyword || this.lookAhead.TokenType == TokenType.PlusPlus
                 || this.lookAhead.TokenType == TokenType.MinusMinus || this.lookAhead.TokenType == TokenType.FunctionKeyword)
             {
-                return new SequenceStatement(Statement(), Statements());
+                return new SequenceStatement(Statement(id), Statements(id));
             }
             return null;
             //eps
             //revisar 
         }
 
-        private Statement Statement()
+        private Statement Statement(IdExpression id)
         {
             switch (this.lookAhead.TokenType)
             {
                 case TokenType.Id:
-                    return Id_Statement();
+                    return Id_Statement(id);
                 case TokenType.WhileKeyword:
                     return WhileStatement();
                 case TokenType.IfKeyword:
@@ -111,18 +110,17 @@ namespace TSCompiler.Parser
                 case TokenType.ContinueKeyword:
                     return ContinueStatement();
                 case TokenType.PlusPlus:
-                    return IncrementStatement();
+                    return IncrementStatement(id);
                 case TokenType.MinusMinus:
-                    return DecrementStatement();
+                    return DecrementStatement(id);
                 case TokenType.FunctionKeyword:
                     return FunctionStatement();
             }
             return null;
         }
 
-        private Statement Id_Statement()
+        private Statement Id_Statement(IdExpression id)
         {
-            IdExpression id = new IdExpression(this.lookAhead.Lexeme, null);
             Match(TokenType.Id);
             var statement = Id_Statement_Prime(id);
             return statement;
@@ -310,18 +308,25 @@ namespace TSCompiler.Parser
             Match(TokenType.LeftCurly);
             var stmt = Block();
             Match(TokenType.RightCurly);
-            IfStatementPrime();
+            if(this.lookAhead.TokenType != TokenType.ElseKeyword)
+            {
+                return new IfStatement(expr, stmt, null);
+            }
+            var elseStatement = IfStatementPrime(expr, stmt);
+            return elseStatement;
         }
 
-        private Statement IfStatementPrime()
+        private Statement IfStatementPrime(Expresion expr, Statement ifstmt)
         {
             if(this.lookAhead.TokenType == TokenType.ElseKeyword)
             {
                 Match(TokenType.ElseKeyword);
                 Match(TokenType.LeftCurly);
-                var stmt = Block();
+                var elsestmt = Block();
                 Match(TokenType.RightCurly);
+                return new IfStatement(expr, ifstmt, elsestmt);
             }
+            return null;
             //eps
         }
 
@@ -339,125 +344,135 @@ namespace TSCompiler.Parser
                 expr = LogicalAndExpression();
                 return LogicalOrExpressionPrime(expr);
             }
-            //eps
+            return new LogicalOrExpression(expr, LogicalAndExpression());
         }
 
         private Expresion LogicalAndExpression()
         {
-            EqualityExpression();
-            LogicalAndExpressionPrime();
+            var expr = EqualityExpression();
+            return LogicalAndExpressionPrime(expr);
         }
 
-        private Expresion LogicalAndExpressionPrime()
+        private Expresion LogicalAndExpressionPrime(Expresion expr)
         {
             if(this.lookAhead.TokenType == TokenType.And)
             {
                 Match(TokenType.And);
-                EqualityExpression();
-                LogicalAndExpressionPrime();
+                expr = EqualityExpression();
+                return LogicalAndExpressionPrime(expr);
             }
-            //eps
+            return new LogicalAndExpression(expr, EqualityExpression());
         }
 
         private Expresion EqualityExpression()
         {
-            RelationalExpression();
-            EqualityExpressionPrime();
+            var expr = RelationalExpression();
+            return EqualityExpressionPrime(expr);
         }
 
-        private Expresion EqualityExpressionPrime()
+        private Expresion EqualityExpressionPrime(Expresion expr)
         {
             if(this.lookAhead.TokenType == TokenType.Equality)
             {
                 Match(TokenType.Equality);
-                RelationalExpression();
-                EqualityExpressionPrime();
+                expr = RelationalExpression();
+                return EqualityExpressionPrime(expr);
             }
             if(this.lookAhead.TokenType == TokenType.NotEquals)
             {
                 Match(TokenType.NotEquals);
-                RelationalExpression();
-                EqualityExpressionPrime();
+                expr = RelationalExpression();
+                return EqualityExpressionPrime(expr);
             }
+            return new EqualityExpression(expr, RelationalExpression());
             //eps
         }
 
         private Expresion RelationalExpression()
         {
-            Expression();
-            RelationalExpressionPrime();
+            var expr = Expression();
+            return RelationalExpressionPrime(expr);
         }
 
-        private Expresion RelationalExpressionPrime()
+        private Expresion RelationalExpressionPrime(Expresion expr)
         {
             switch (this.lookAhead.TokenType)
             {
                 case TokenType.GreaterThan:
+                    var token = this.lookAhead;
                     Match(TokenType.GreaterThan);
-                    Expression();
-                    break;
+                    expr = new RelationalExpression(expr, Expression(), token);
+                    return expr;
                 case TokenType.LessThan:
+                    token = this.lookAhead;
                     Match(TokenType.LessThan);
-                    Expression();
-                    break;
+                    expr = new RelationalExpression(expr, Expression(), token);
+                    return expr;
                 case TokenType.GreaterOrEqualThan:
+                    token = this.lookAhead;
                     Match(TokenType.GreaterOrEqualThan);
-                    Expression();
-                    break;
+                    expr = new RelationalExpression(expr, Expression(), token);
+                    return expr;
                 case TokenType.LessOrEqualThan:
+                    token = this.lookAhead;
                     Match(TokenType.LessOrEqualThan);
-                    Expression();
-                    break;
+                    expr = new RelationalExpression(expr, Expression(), token);
+                    return expr;
                 default:
-                    //eps
-                    break;
+                    return expr;
             }
         }
 
         private Expresion Expression()
         {
-            Term();
-            ExpressionPrime();
+            var expr = Term();
+            var token = this.lookAhead;
+            return ExpressionPrime(expr, token);
         }
 
-        private Expresion ExpressionPrime()
+        private Expresion ExpressionPrime(Expresion expr, Token token)
         {
             if(this.lookAhead.TokenType == TokenType.Plus)
             {
+                var plus = this.lookAhead;
                 Match(TokenType.Plus);
-                Term();
-                ExpressionPrime();
+                expr = Term();
+                return ExpressionPrime(expr, plus);
             }
-            if(lookAhead.TokenType == TokenType.Minus)
+            if(this.lookAhead.TokenType == TokenType.Minus)
             {
+                var minus = this.lookAhead;
                 Match(TokenType.Minus);
-                Term();
-                ExpressionPrime();
+                expr = Term();
+                return ExpressionPrime(expr, minus);
             }
-            //eps
+            return new ArithmeticExpression(expr, Term(), token);
         }
 
         private Expresion Term()
         {
-            Factor();
-            TermPrime();
+            var expr = Factor();
+            var token = this.lookAhead;
+            return TermPrime(expr, token);
         }
 
-        private Expresion TermPrime()
+        private Expresion TermPrime(Expresion expr, Token token)
         {
             if (this.lookAhead.TokenType == TokenType.Mult)
             {
+                var mult = this.lookAhead;
                 Match(TokenType.Mult);
-                Factor();
-                TermPrime();
+                expr = Factor();
+                return TermPrime(expr, mult);
             }
-            if (lookAhead.TokenType == TokenType.Division)
+            if (this.lookAhead.TokenType == TokenType.Division)
             {
+                var div = this.lookAhead;
                 Match(TokenType.Division);
-                Factor();
-                TermPrime();
+                expr = Factor();
+                return TermPrime(expr, div);
             }
-            //eps
+            return new ArithmeticExpression(expr, Factor(), token);
         }
 
         private Expresion Factor()
