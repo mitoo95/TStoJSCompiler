@@ -8,11 +8,11 @@ namespace TSCompiler.Core
 {
     public class FunctionStatement : Statement
     {
-        public List<Expresion>? FirstExpression { get; set; }
-        public Expresion SecondExpression { get; set; }
+        public List<ExpresionType>? FirstExpression { get; set; }
+        public ExpresionType SecondExpression { get; set; }
         public Statement Statement { get; set; }
 
-        public FunctionStatement(List<Expresion>? firstExpression, Expresion secondExpression, Statement statement)
+        public FunctionStatement(List<ExpresionType>? firstExpression, ExpresionType secondExpression, Statement statement)
         {
             FirstExpression = firstExpression;
             SecondExpression = secondExpression;

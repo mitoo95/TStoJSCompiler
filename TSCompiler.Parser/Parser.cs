@@ -1,4 +1,5 @@
-﻿using TSCompiler.Core;
+﻿using System.Linq.Expressions;
+using TSCompiler.Core;
 using TSCompiler.Lexer;
 
 namespace TSCompiler.Parser
@@ -35,9 +36,10 @@ namespace TSCompiler.Parser
         private Statement Block()
         {
             IdExpression id = null;
+            ContextManager.Push();
             if (this.lookAhead.TokenType == TokenType.VarKeyword || this.lookAhead.TokenType == TokenType.ConstKeyword || this.lookAhead.TokenType == TokenType.LetKeyword)
             {
-                Declarations();
+                Declarations(ref id);
                 Block();
             }
             if (this.lookAhead.TokenType == TokenType.Id || this.lookAhead.TokenType == TokenType.IfKeyword
@@ -47,15 +49,9 @@ namespace TSCompiler.Parser
             || this.lookAhead.TokenType == TokenType.MinusMinus || this.lookAhead.TokenType == TokenType.FunctionKeyword)
             {
                 id = new IdExpression(this.lookAhead.Lexeme, null);
+                ContextManager.Pop();
                 return new SequenceStatement(Statements(id), Block());
             }
-            //if(this.lookAhead.TokenType == TokenType.LineComment || this.lookAhead.TokenType == TokenType.BlockCommentStart)
-            //{
-            //    Comments();
-            //    Block();
-            //}Preguntar al ing el lunes
-
-
             //εps
             return null;
         }
@@ -135,13 +131,13 @@ namespace TSCompiler.Parser
             }
             if(this.lookAhead.TokenType == TokenType.PlusPlus)
             {
-                IncrementStatement(id);
-                return null;
+                var stmt = IncrementStatement(id);
+                return stmt;
             }
             if(this.lookAhead.TokenType == TokenType.MinusMinus)
             {
-                DecrementStatement(id);
-                return null;
+                var stmt = DecrementStatement(id);
+                return stmt;
             }
             return null;
         }
@@ -239,17 +235,17 @@ namespace TSCompiler.Parser
             //WIP
         }
 
-        private List<Expresion> Params()
+        private List<ExpresionType> Params()
         {
-            var expressions = new List<Expresion>();
+            var expressions = new List<ExpresionType>();
             expressions.Add(Param()); 
             expressions.AddRange(Params());
             return expressions;
         }
 
-        private List<Expresion> ParamsPrime()
+        private List<ExpresionType> ParamsPrime()
         {
-            var expressions = new List<Expresion>();
+            var expressions = new List<ExpresionType>();
             if(this.lookAhead.TokenType == TokenType.Comma)
             {
                 Match(TokenType.Comma);
@@ -259,7 +255,7 @@ namespace TSCompiler.Parser
             return expressions;
         }
 
-        private Expresion Param()
+        private ExpresionType Param()
         {
             Match(TokenType.Id);
             Match(TokenType.Colon);
@@ -487,21 +483,28 @@ namespace TSCompiler.Parser
                 case TokenType.NumberConst:
                     var token = this.lookAhead;
                     Match(TokenType.NumberConst);
-                    var constant = new ConstantExpresion(ExpresionType.Number, token);
-                    break;
+                    return new ConstantExpresion(ExpresionType.Number, token);
                 case TokenType.TrueKeyword:
                     token = this.lookAhead;
                     Match(TokenType.TrueKeyword);
-                    constant = new ConstantExpresion(ExpresionType.Boolean, token);
-                    break;
+                    return new ConstantExpresion(ExpresionType.Boolean, token);
                 case TokenType.FalseKeyword:
                     token = this.lookAhead;
                     Match(TokenType.FalseKeyword);
-                    constant = new ConstantExpresion(ExpresionType.Boolean, token);
-                    break;
+                    return new ConstantExpresion(ExpresionType.Boolean, token);
                 default:
+                    token = this.lookAhead;
                     Match(TokenType.Id);
-                    break;
+                    var id = ContextManager.Get(token.Lexeme).Id;
+                    if(id.Type is not ArrayType)
+                    {
+                        return id;
+                    }
+                    Match(TokenType.LeftBracket);
+                    var index = LogicalOrExpression();
+                    Match(TokenType.RightBracket);
+                    id.Type = ((ArrayType)id.GetType()).Of;
+                    return id;
             }
         }
 
@@ -515,12 +518,12 @@ namespace TSCompiler.Parser
             return new WhileStatement(expr, stmt);
         }
 
-        private void Declarations()
+        private void Declarations(ref IdExpression id)
         {
             if(this.lookAhead.TokenType == TokenType.VarKeyword || this.lookAhead.TokenType == TokenType.ConstKeyword || this.lookAhead.TokenType == TokenType.LetKeyword)
             {
-                Declaration();
-                Declarations();
+                Declaration(ref id);
+                Declarations(ref id);
             }
             //eps
         }
@@ -576,28 +579,35 @@ namespace TSCompiler.Parser
             }
         }
 
-        private Expresion Type()
+        private ExpresionType Type()
         {
             switch (this.lookAhead.TokenType)
             {
-                case TokenType.NumberConst:
-                    var token = this.lookAhead;
-                    Match(TokenType.NumberConst);
-                    var constant = new ConstantExpresion(ExpresionType.Number, token);
-                    TypePrime();
-                    break;
+                case TokenType.NumberKeyword:
+                    Match(TokenType.NumberKeyword);
+                    return ExpresionType.Number;
                 case TokenType.BooleanKeyword:
-                    token = this.lookAhead;
                     Match(TokenType.BooleanKeyword);
-                    constant = new ConstantExpresion(ExpresionType.Boolean, token);
-                    TypePrime();
-                    break;
+                    return ExpresionType.Boolean;
+                case TokenType.UndefinedKeyword:
+                    Match(TokenType.UndefinedKeyword);
+                    return ExpresionType.Undefined;
+                case TokenType.NullKeyword:
+                    Match(TokenType.NullKeyword);
+                    return ExpresionType.Null;
+                case TokenType.ArrayKeyword:
+                    Match(TokenType.ArrayKeyword);
+                    Match(TokenType.LessThan);
+                    var type = Type();
+                    Match(TokenType.GreaterThan);
+                    Match(TokenType.LeftBracket);
+                    var size = this.lookAhead;
+                    Match(TokenType.NumberConst);
+                    Match(TokenType.RightBracket);
+                    return new ArrayType("[]", TokenType.ComplexType, type, int.Parse(size.Lexeme));
                 default:
-                    token = this.lookAhead;
                     Match(TokenType.StringKeyword);
-                    constant = new ConstantExpresion(ExpresionType.String, token);
-                    TypePrime();
-                    break;
+                    return ExpresionType.String;
             }
         }
 

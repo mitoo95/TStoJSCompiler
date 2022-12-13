@@ -19,6 +19,7 @@ namespace TSCompiler.Core
         public static ExpresionType Boolean => new ExpresionType("boolean", TokenType.BasicType);
         public static ExpresionType String => new ExpresionType("string", TokenType.BasicType);
         public static ExpresionType Undefined => new ExpresionType("undefined", TokenType.BasicType);
+        public static ExpresionType Null => new ExpresionType("null", TokenType.BasicType);
 
         public bool Equals(ExpresionType? other)
         {

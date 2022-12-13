@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TSCompiler.Core
 {
-    public class IdExpression
+    public class IdExpression : Expresion
     {
         //nombre del identificador
         public string Name { get; set; }
@@ -19,5 +19,9 @@ namespace TSCompiler.Core
             Type = type;
         }
 
+        public override ExpresionType GetType()
+        {
+            return Type;
+        }
     }
 }

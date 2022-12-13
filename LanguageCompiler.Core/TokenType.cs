@@ -27,11 +27,13 @@ namespace TSCompiler.Core
         GreaterThan,
         Equal,
         Id,
+        ArrayKeyword,
         IfKeyword,
         ElseKeyword,
         WhileKeyword,
         StringKeyword,
         NumberConst,
+        NumberKeyword,
         BooleanKeyword,
         VoidKeyword,
         NullKeyword,
@@ -81,5 +83,6 @@ namespace TSCompiler.Core
         ModuleKeyword,
         MainKeyword,
         BasicType,
+        ComplexType,
     }
 }
