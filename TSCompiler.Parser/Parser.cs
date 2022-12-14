@@ -26,21 +26,21 @@ namespace TSCompiler.Parser
 
         private Statement Code()
         {
-            Imports(); //no va en arbol
-            Block();
-            Main();
-            return new ReturnCode(Imports(), Block(), Main());
+            ContextManager.Push();
+            var code = new ReturnCode(Imports(), Block(), Main());
+            ContextManager.Pop();
+            return code;
             
         }
 
         private Statement Block()
         {
             IdExpression id = null;
-            ContextManager.Push();
             if (this.lookAhead.TokenType == TokenType.VarKeyword || this.lookAhead.TokenType == TokenType.ConstKeyword || this.lookAhead.TokenType == TokenType.LetKeyword)
             {
-                Declarations(ref id);
-                Block();
+                return new SequenceStatement(Declarations(id), Block());
+                /*Declarations(ref id);
+                Block();*/
             }
             if (this.lookAhead.TokenType == TokenType.Id || this.lookAhead.TokenType == TokenType.IfKeyword
             || this.lookAhead.TokenType == TokenType.WhileKeyword || this.lookAhead.TokenType == TokenType.ForKeyword
@@ -48,8 +48,6 @@ namespace TSCompiler.Parser
             || this.lookAhead.TokenType == TokenType.ContinueKeyword || this.lookAhead.TokenType == TokenType.PlusPlus
             || this.lookAhead.TokenType == TokenType.MinusMinus || this.lookAhead.TokenType == TokenType.FunctionKeyword)
             {
-                id = new IdExpression(this.lookAhead.Lexeme, null);
-                ContextManager.Pop();
                 return new SequenceStatement(Statements(id), Block());
             }
             //εps
@@ -110,14 +108,17 @@ namespace TSCompiler.Parser
                 case TokenType.MinusMinus:
                     return DecrementStatement(id);
                 case TokenType.FunctionKeyword:
-                    return FunctionStatement();
+                    return FunctionStatement(id);
             }
             return null;
         }
 
         private Statement Id_Statement(IdExpression id)
         {
+            var token = this.lookAhead;
+            id = new IdExpression(token.Lexeme, null);
             Match(TokenType.Id);
+            ContextManager.Put(id.Name, id);
             var statement = Id_Statement_Prime(id);
             return statement;
         }
@@ -215,14 +216,17 @@ namespace TSCompiler.Parser
             return new AssignationStatement(id, expr);
         }
 
-        private Statement FunctionStatement()
+        private Statement FunctionStatement(IdExpression id)
         {
             if(this.lookAhead.TokenType == TokenType.FunctionKeyword)
             {
                 Match(TokenType.FunctionKeyword);
+                var token = this.lookAhead;
+                id = new IdExpression(token.Lexeme, null);
                 Match(TokenType.Id);
+                ContextManager.Put(id.Name, id);
                 Match(TokenType.LeftParenthesis);
-                var expr = Params();
+                var expr = Params(id);
                 Match(TokenType.RightParenthesis);
                 Match(TokenType.Colon);
                 var expr2 = Type();
@@ -235,32 +239,35 @@ namespace TSCompiler.Parser
             //WIP
         }
 
-        private List<ExpresionType> Params()
+        private List<ExpresionType> Params(IdExpression id)
         {
             var expressions = new List<ExpresionType>();
-            expressions.Add(Param()); 
-            expressions.AddRange(Params());
+            expressions.Add(Param(id)); 
+            expressions.AddRange(ParamsPrime(id));
             return expressions;
         }
 
-        private List<ExpresionType> ParamsPrime()
+        private List<ExpresionType> ParamsPrime(IdExpression id)
         {
             var expressions = new List<ExpresionType>();
             if(this.lookAhead.TokenType == TokenType.Comma)
             {
                 Match(TokenType.Comma);
-                expressions = Params();
+                expressions = Params(id);
 
             }
             return expressions;
         }
 
-        private ExpresionType Param()
+        private ExpresionType Param(IdExpression id)
         {
+            var token = this.lookAhead;
+            id = new IdExpression(token.Lexeme, null);
             Match(TokenType.Id);
+            ContextManager.Put(id.Name, id);
             Match(TokenType.Colon);
             var expr = Type();
-            return expr;
+            return new BinaryParameter(id.Name, TokenType.BasicType, id, expr);
         }
 
         private Statement ContinueStatement()
@@ -492,11 +499,11 @@ namespace TSCompiler.Parser
                     token = this.lookAhead;
                     Match(TokenType.FalseKeyword);
                     return new ConstantExpresion(ExpresionType.Boolean, token);
-                default:
+                case TokenType.Id:
                     token = this.lookAhead;
                     Match(TokenType.Id);
                     var id = ContextManager.Get(token.Lexeme).Id;
-                    if(id.Type is not ArrayType)
+                    if (id.Type is not ArrayType)
                     {
                         return id;
                     }
@@ -505,6 +512,8 @@ namespace TSCompiler.Parser
                     Match(TokenType.RightBracket);
                     id.Type = ((ArrayType)id.GetType()).Of;
                     return id;
+                default:
+                    return null;
             }
         }
 
@@ -518,64 +527,71 @@ namespace TSCompiler.Parser
             return new WhileStatement(expr, stmt);
         }
 
-        private void Declarations(ref IdExpression id)
+        private Statement Declarations(IdExpression id)
         {
             if(this.lookAhead.TokenType == TokenType.VarKeyword || this.lookAhead.TokenType == TokenType.ConstKeyword || this.lookAhead.TokenType == TokenType.LetKeyword)
             {
-                Declaration(ref id);
-                Declarations(ref id);
+                return new SequenceStatement(Declaration(id), Declarations(id));
+                /*Declaration(ref id);
+                Declarations(ref id);*/
             }
+            return null;
             //eps
         }
 
-        private void Declaration()
+        private Statement Declaration(IdExpression id)
         {
-            VarDeclaration();
+            var exprType = VarDeclaration();
+            var token = this.lookAhead;
+            id = new IdExpression(token.Lexeme, null);
             Match(TokenType.Id);
-            DeclarationPrime();
+            ContextManager.Put(id.Name, id);
+            return new DeclarationAssignation(exprType, DeclarationPrime(id));
         }
 
-        private void DeclarationPrime()
+        private Statement DeclarationPrime(IdExpression id)
         {
             switch (this.lookAhead.TokenType)
             {
                 case TokenType.Colon:
                     Match(TokenType.Colon);
-                    Type();
-                    DeclarationPrimePrime();
-                    break;
+                    var type = Type();
+                    var stmt = DeclarationPrimePrime(id);
+                    return new DeclarationAssignation(type, stmt);
 
                 default:
                     Match(TokenType.Equal);
                     Match(TokenType.LeftParenthesis);
-                    Params();
+                    var @params =Params(id);
                     Match(TokenType.RightParenthesis);
                     Match(TokenType.Colon);
-                    Type();
+                    type = Type();
                     Match(TokenType.ArrowFunction);
                     Match(TokenType.LeftCurly);
-                    Block();
+                    stmt = Block();
                     Match(TokenType.RightCurly);
-                    break;
+                    return new FunctionStatement(@params, type, stmt);
             }
         }
 
-        private void DeclarationPrimePrime()
+        private Statement DeclarationPrimePrime(IdExpression id)
         {
             if(this.lookAhead.TokenType == TokenType.LeftBracket)
             {
                 Match(TokenType.LeftBracket);
-                Expression();
+                var expr = Expression();
                 Match(TokenType.RightBracket);
                 Match(TokenType.Semicolon);
+                return new AssignationStatement(id, expr);
             }
             if(this.lookAhead.TokenType == TokenType.Equal)
             {
-                AssignEquals();
+                return AssignEquals(id);
             }
             else
             {
                 Match(TokenType.Semicolon);
+                return null;
             }
         }
 
@@ -623,19 +639,19 @@ namespace TSCompiler.Parser
             //eps
         }
 
-        private void VarDeclaration()
+        private ExpresionType VarDeclaration()
         {
             switch (this.lookAhead.TokenType)
             {
                 case TokenType.VarKeyword:
                     Match(TokenType.VarKeyword);
-                    break;
+                    return ExpresionType.Var;
                 case TokenType.LetKeyword:
                     Match(TokenType.LetKeyword);
-                    break;
+                    return ExpresionType.Let;
                 default:
                     Match(TokenType.ConstKeyword);
-                    break;
+                    return ExpresionType.Const;
             }
         }
 

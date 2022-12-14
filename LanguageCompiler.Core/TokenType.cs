@@ -84,5 +84,6 @@ namespace TSCompiler.Core
         MainKeyword,
         BasicType,
         ComplexType,
+        VarType,
     }
 }

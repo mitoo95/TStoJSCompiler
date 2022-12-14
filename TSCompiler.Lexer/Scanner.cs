@@ -14,7 +14,7 @@ namespace TSCompiler.Lexer
             this.keywords = new Dictionary<string, TokenType>
             {
                 {"array", TokenType.ArrayKeyword },
-                {"number", TokenType.NumberConst },
+                {"number", TokenType.NumberKeyword },
                 {"string", TokenType.StringKeyword },
                 {"boolean", TokenType.BooleanKeyword },
                 {"void", TokenType.VoidKeyword },

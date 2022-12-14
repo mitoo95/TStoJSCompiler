@@ -1,3 +1,3 @@
-﻿let a:boolean = true;
-let b:number = 1;
-return b;
+﻿function sum(a : number, b : number) : number {
+    return a + b;
+}
