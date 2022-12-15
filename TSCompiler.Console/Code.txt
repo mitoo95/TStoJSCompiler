@@ -1,21 +1,7 @@
-﻿
+﻿function sum(a:number,b:number, c:number):number{
+    return a + b + c;
+}
 
-function sum(a : number, b : number) : number {
-    return a + b;
-}
- 
-function minus(a : number, b : number) : number {
-    return a - b;
-}
- 
-function div(a : number, b : number) : number {
-    return a / b;
-}
- 
-function mult(a : number, b : number) : number {
-    return a * b;
-}
- 
-
-console.log(a : number, b : number,c : number);
-
+let a:number = 1;
+let b:number = 1;
+let c:number = 1;

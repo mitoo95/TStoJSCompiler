@@ -36,6 +36,7 @@ namespace TSCompiler.Parser
         private Statement Block()
         {
             IdExpression id = null;
+            ContextManager.Push();
             if (this.lookAhead.TokenType == TokenType.VarKeyword || this.lookAhead.TokenType == TokenType.ConstKeyword || this.lookAhead.TokenType == TokenType.LetKeyword)
             {
                 return new SequenceStatement(Declarations(id), Block());
@@ -52,6 +53,7 @@ namespace TSCompiler.Parser
                 return new SequenceStatement(Statements(id), Block());
             }
             //εps
+            ContextManager.Pop();
             return null;
         }
 
@@ -82,6 +84,7 @@ namespace TSCompiler.Parser
             {
                 return new SequenceStatement(Statement(id), Statements(id));
             }
+            ContextManager.Pop();
             return null;
             //eps
             //revisar 
@@ -229,6 +232,7 @@ namespace TSCompiler.Parser
                 id = new IdExpression(token.Lexeme, null);
                 Match(TokenType.Id);
                 ContextManager.Put(id.Name, id);
+                ContextManager.Push();
                 Match(TokenType.LeftParenthesis);
                 var expr = Params(id);
                 Match(TokenType.RightParenthesis);
@@ -268,6 +272,7 @@ namespace TSCompiler.Parser
             var token = this.lookAhead;
             id = new IdExpression(token.Lexeme, null);
             Match(TokenType.Id);
+            ContextManager.Put(id.Name,id);
             Match(TokenType.Colon);
             var expr = Type();
             return new BinaryParameter(id.Name, TokenType.BasicType, id, expr);
