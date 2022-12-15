@@ -85,5 +85,8 @@ namespace TSCompiler.Core
         BasicType,
         ComplexType,
         VarType,
+        Console,
+        Log,
+        Dot,
     }
 }

@@ -46,7 +46,8 @@ namespace TSCompiler.Parser
             || this.lookAhead.TokenType == TokenType.WhileKeyword || this.lookAhead.TokenType == TokenType.ForKeyword
             || this.lookAhead.TokenType == TokenType.ReturnKeyword || this.lookAhead.TokenType == TokenType.BreakKeyword
             || this.lookAhead.TokenType == TokenType.ContinueKeyword || this.lookAhead.TokenType == TokenType.PlusPlus
-            || this.lookAhead.TokenType == TokenType.MinusMinus || this.lookAhead.TokenType == TokenType.FunctionKeyword)
+            || this.lookAhead.TokenType == TokenType.MinusMinus || this.lookAhead.TokenType == TokenType.FunctionKeyword
+            || this.lookAhead.TokenType == TokenType.Console)
             {
                 return new SequenceStatement(Statements(id), Block());
             }
@@ -76,7 +77,8 @@ namespace TSCompiler.Parser
                 || this.lookAhead.TokenType == TokenType.WhileKeyword || this.lookAhead.TokenType == TokenType.ForKeyword
                 || this.lookAhead.TokenType == TokenType.ReturnKeyword || this.lookAhead.TokenType == TokenType.BreakKeyword
                 || this.lookAhead.TokenType == TokenType.ContinueKeyword || this.lookAhead.TokenType == TokenType.PlusPlus
-                || this.lookAhead.TokenType == TokenType.MinusMinus || this.lookAhead.TokenType == TokenType.FunctionKeyword)
+                || this.lookAhead.TokenType == TokenType.MinusMinus || this.lookAhead.TokenType == TokenType.FunctionKeyword
+                || this.lookAhead.TokenType == TokenType.Console)
             {
                 return new SequenceStatement(Statement(id), Statements(id));
             }
@@ -109,6 +111,8 @@ namespace TSCompiler.Parser
                     return DecrementStatement(id);
                 case TokenType.FunctionKeyword:
                     return FunctionStatement(id);
+                case TokenType.Console:
+                    return ConsoleLogStatement(id);
             }
             return null;
         }
@@ -264,7 +268,6 @@ namespace TSCompiler.Parser
             var token = this.lookAhead;
             id = new IdExpression(token.Lexeme, null);
             Match(TokenType.Id);
-            ContextManager.Put(id.Name, id);
             Match(TokenType.Colon);
             var expr = Type();
             return new BinaryParameter(id.Name, TokenType.BasicType, id, expr);
@@ -499,6 +502,10 @@ namespace TSCompiler.Parser
                     token = this.lookAhead;
                     Match(TokenType.FalseKeyword);
                     return new ConstantExpresion(ExpresionType.Boolean, token);
+                case TokenType.NullKeyword:
+                    token = this.lookAhead;
+                    Match(TokenType.NullKeyword);
+                    return new ConstantExpresion(ExpresionType.Null, token);
                 case TokenType.Id:
                     token = this.lookAhead;
                     Match(TokenType.Id);
@@ -512,6 +519,10 @@ namespace TSCompiler.Parser
                     Match(TokenType.RightBracket);
                     id.Type = ((ArrayType)id.GetType()).Of;
                     return id;
+                case TokenType.Not:
+                    token = this.lookAhead;
+                    Match(TokenType.Not);
+                    return new ConstantExpresion(ExpresionType.Not, token);
                 default:
                     return null;
             }
@@ -558,19 +569,24 @@ namespace TSCompiler.Parser
                     var type = Type();
                     var stmt = DeclarationPrimePrime(id);
                     return new DeclarationAssignation(type, stmt);
-
                 default:
                     Match(TokenType.Equal);
-                    Match(TokenType.LeftParenthesis);
-                    var @params =Params(id);
-                    Match(TokenType.RightParenthesis);
-                    Match(TokenType.Colon);
-                    type = Type();
-                    Match(TokenType.ArrowFunction);
-                    Match(TokenType.LeftCurly);
-                    stmt = Block();
-                    Match(TokenType.RightCurly);
-                    return new FunctionStatement(@params, type, stmt);
+                    if (this.lookAhead.TokenType == TokenType.LeftParenthesis)
+                    {
+                        Match(TokenType.LeftParenthesis);
+                        var @params = Params(id);
+                        Match(TokenType.RightParenthesis);
+                        Match(TokenType.Colon);
+                        type = Type();
+                        Match(TokenType.ArrowFunction);
+                        Match(TokenType.LeftCurly);
+                        stmt = Block();
+                        Match(TokenType.RightCurly);
+                        return new FunctionStatement(@params, type, stmt);
+                    }
+                    var assign = AssignEqualsPrime(id);
+                    return assign;
+                    
             }
         }
 
@@ -612,6 +628,7 @@ namespace TSCompiler.Parser
                     Match(TokenType.NullKeyword);
                     return ExpresionType.Null;
                 case TokenType.ArrayKeyword:
+                    
                     Match(TokenType.ArrayKeyword);
                     Match(TokenType.LessThan);
                     var type = Type();
@@ -653,6 +670,20 @@ namespace TSCompiler.Parser
                     Match(TokenType.ConstKeyword);
                     return ExpresionType.Const;
             }
+        }
+
+        private Statement ConsoleLogStatement(IdExpression id)
+        {
+            
+            Match(TokenType.Console);
+            Match(TokenType.Dot);
+            Match(TokenType.Log);
+            Match(TokenType.LeftParenthesis);
+            var @params = Params(id);
+            Match(TokenType.RightParenthesis);
+            Match(TokenType.Semicolon);
+            return new ConsoleLogStatement(@params);
+            
         }
 
         private void Comments()

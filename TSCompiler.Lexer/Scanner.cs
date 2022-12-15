@@ -39,6 +39,8 @@ namespace TSCompiler.Lexer
                 {"do", TokenType.DoKeyword },
                 {"import", TokenType.ImportKeyword },
                 {"main", TokenType.MainKeyword },
+                {"console", TokenType.Console },
+                {"log", TokenType.Log },
             };
         }
 
@@ -288,6 +290,9 @@ namespace TSCompiler.Lexer
                     case ';':
                         lexeme.Append(currentChar);
                         return CreateToken(TokenType.Semicolon, input.Position.Column, input.Position.Line, lexeme.ToString());
+                    case '.':
+                        lexeme.Append(currentChar);
+                        return CreateToken(TokenType.Dot, input.Position.Column, input.Position.Line, lexeme.ToString());
                     case '{':
                         lexeme.Append(currentChar);
                         return CreateToken(TokenType.LeftCurly, input.Position.Column, input.Position.Line, lexeme.ToString());
