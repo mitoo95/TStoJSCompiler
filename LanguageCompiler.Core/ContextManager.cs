@@ -50,7 +50,7 @@ namespace TSCompiler.Core
             if (_symbolTable.ContainsKey(lexeme))
             {
                 throw new ApplicationException(
-                    $"A local symbol named '{lexeme}' cannot be declared in this scope because a symbol with the same already exists");
+                    $"A local symbol named '{lexeme}' cannot be declared in this scope because a symbol with the same name already exists");
             }
             _symbolTable.Add(lexeme, new Symbol(id));
         }

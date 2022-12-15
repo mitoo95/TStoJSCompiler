@@ -8,14 +8,18 @@ namespace TSCompiler.Core
 {
     public class ForStatement : Statement
     {
+        public Statement Declaration { get; set; }
         public Expresion BooleanExpression { get; set; }
-
         public Statement Statement { get; set; }
+        public Statement Block { get; set; }
 
-        public ForStatement(Expresion binaryExpression, Statement statement)
+
+        public ForStatement(Statement declaration, Expresion booleanExpression, Statement statement, Statement block)
         {
-            BooleanExpression = binaryExpression;
+            Declaration = declaration;
+            BooleanExpression = booleanExpression;
             Statement = statement;
+            Block = block;
         }
     }
 }

@@ -101,7 +101,7 @@ namespace TSCompiler.Parser
                 case TokenType.IfKeyword:
                     return IfStatement();
                 case TokenType.ForKeyword:
-                    return ForStatement();
+                    return ForStatement(id);
                 case TokenType.ReturnKeyword:
                     return ReturnStatement();
                 case TokenType.BreakKeyword:
@@ -145,6 +145,13 @@ namespace TSCompiler.Parser
             if(this.lookAhead.TokenType == TokenType.MinusMinus)
             {
                 var stmt = DecrementStatement(id);
+                return stmt;
+            }
+            if (this.lookAhead.TokenType == TokenType.LeftParenthesis)
+            {
+                Match(TokenType.LeftParenthesis);
+                var @params = Params(id);
+                var stmt = new FunctionCall(@params);
                 return stmt;
             }
             return null;
@@ -301,13 +308,23 @@ namespace TSCompiler.Parser
             //WIP
         }
         //pregunta
-        private Statement ForStatement()
+        private Statement ForStatement(IdExpression id)
         {
             Match(TokenType.ForKeyword);
+            ContextManager.Push();
             Match(TokenType.LeftParenthesis);
+            var declaration = Declaration(id);
             var expression = LogicalOrExpression();
+            Match(TokenType.Semicolon);
+            ContextManager.Pop();
+            ContextManager.Push();
+            var statement = Id_Statement(id);
             Match(TokenType.RightParenthesis);
-            return new ForStatement(expression, Block());
+            Match(TokenType.LeftCurly);
+            var @for = new ForStatement(declaration, expression, statement, Block());
+            Match(TokenType.RightCurly);
+            ContextManager.Pop();
+            return @for;
         }
 
         private Statement IfStatement()

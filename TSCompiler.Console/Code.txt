@@ -1,7 +1,5 @@
-﻿function sum(a:number,b:number, c:number):number{
-    return a + b + c;
+﻿for (let i:number = 0; i < 10; i++) {
+    
+        return i;
+    
 }
-
-let a:number = 1;
-let b:number = 1;
-let c:number = 1;
