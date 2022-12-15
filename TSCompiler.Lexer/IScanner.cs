@@ -1,4 +1,6 @@
-﻿namespace TSCompiler.Lexer
+﻿using TSCompiler.Core;
+
+namespace TSCompiler.Lexer
 {
     public interface IScanner
     {

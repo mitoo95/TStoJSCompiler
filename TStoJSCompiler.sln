@@ -7,7 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSCompiler.Lexer", "TSCompi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSCompiler.Console", "TSCompiler.Console\TSCompiler.Console.csproj", "{24B06730-5662-49FC-9837-07CAF041CCA1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSCompiler.Parser", "TSCompiler.Parser\TSCompiler.Parser.csproj", "{FFB45B9D-E587-4150-841B-BD53D9F323C9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSCompiler.Parser", "TSCompiler.Parser\TSCompiler.Parser.csproj", "{FFB45B9D-E587-4150-841B-BD53D9F323C9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSCompiler.Core", "LanguageCompiler.Core\TSCompiler.Core.csproj", "{1222C2A8-B1FF-4972-B064-F0E39E858E5E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{FFB45B9D-E587-4150-841B-BD53D9F323C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FFB45B9D-E587-4150-841B-BD53D9F323C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FFB45B9D-E587-4150-841B-BD53D9F323C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1222C2A8-B1FF-4972-B064-F0E39E858E5E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1222C2A8-B1FF-4972-B064-F0E39E858E5E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1222C2A8-B1FF-4972-B064-F0E39E858E5E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1222C2A8-B1FF-4972-B064-F0E39E858E5E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

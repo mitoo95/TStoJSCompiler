@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TSCompiler.Lexer
+namespace TSCompiler.Core
 {
     public enum TokenType
     {
@@ -27,6 +27,7 @@ namespace TSCompiler.Lexer
         GreaterThan,
         Equal,
         Id,
+        ArrayKeyword,
         IfKeyword,
         ElseKeyword,
         WhileKeyword,
@@ -81,5 +82,12 @@ namespace TSCompiler.Lexer
         FromKeyword,
         ModuleKeyword,
         MainKeyword,
+        BasicType,
+        ComplexType,
+        VarType,
+        Console,
+        Log,
+        Dot,
+        StringConst,
     }
 }
