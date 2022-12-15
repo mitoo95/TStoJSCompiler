@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace TSCompiler.Core
 {
     public class FunctionStatement : Statement
@@ -17,6 +12,16 @@ namespace TSCompiler.Core
             FirstExpression = firstExpression;
             SecondExpression = secondExpression;
             Statement = statement;
+        }
+
+        public override void ValidateSemantic()
+        {
+            /*throw new NotImplementedException();*/
+        }
+
+        public override string GenerateCode()
+        {
+            return "FunctionStatement";
         }
     }
 }

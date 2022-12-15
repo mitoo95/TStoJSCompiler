@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace TSCompiler.Core
 {
     public class IfStatement : Statement
@@ -18,6 +13,29 @@ namespace TSCompiler.Core
             BooleanExpression = booleanExpression;
             TrueStatement = trueStatement;
             FalseStatement = falseStatement;
+            this.ValidateSemantic();
+        }
+
+        public override void ValidateSemantic()
+        {
+            var exprType = this.BooleanExpression.GetType();
+            if (exprType != ExpresionType.Boolean)
+            {
+                throw new ApplicationException($"Cannot implicitly convert '{exprType}' to bool");
+            }
+        }
+
+        public override string GenerateCode()
+        {
+            var code =
+                $"if({this.BooleanExpression.GenerateCode()}){{{Environment.NewLine} {this.TrueStatement?.GenerateCode()} {Environment.NewLine} }}";
+            if (FalseStatement is null)
+            {
+                return code;
+            }
+
+            code += $"else {{{Environment.NewLine} {this.FalseStatement.GenerateCode()}  {Environment.NewLine}}}";
+            return code;
         }
     }
 }

@@ -6,5 +6,8 @@ var input = new Input(code);
 var scanner = new Scanner(input);
 var parser = new Parser(scanner);
 
-parser.Parse();
 
+var ast = parser.Parse();
+ast.ValidateSemantic();
+/*var generatedCode = ast.GenerateCode();
+File.WriteAllText("./genCode.txt", generatedCode);*/

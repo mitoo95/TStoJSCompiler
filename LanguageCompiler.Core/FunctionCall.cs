@@ -1,4 +1,4 @@
-﻿using System;
+﻿
 namespace TSCompiler.Core
 {
 	public class FunctionCall : Statement
@@ -10,6 +10,16 @@ namespace TSCompiler.Core
 
 			Params = @params;
 		}
-	}
+
+        public override void ValidateSemantic()
+        {
+            /*throw new NotImplementedException();*/
+        }
+
+        public override string GenerateCode()
+        {
+            return "FunctionCall";
+        }
+    }
 }
 

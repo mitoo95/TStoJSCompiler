@@ -1,15 +1,13 @@
-﻿using System;
-using System.Linq.Expressions;
-
+﻿
 namespace TSCompiler.Core
 {
 	public class ArrayAccessExpression : Expresion
 	{
         public ExpresionType Type { get; }
         public IdExpression Id { get; }
-        public Expression Index { get; }
+        public Expresion Index { get; }
 
-        public ArrayAccessExpression(ExpresionType type, Token token, IdExpression id, Expression index)
+        public ArrayAccessExpression(ExpresionType type, Token token, IdExpression id, Expresion index)
         {
             Type = type;
             Id = id;
@@ -20,6 +18,9 @@ namespace TSCompiler.Core
         {
             return Type;
         }
+
+        public override string GenerateCode() =>
+        $"{this.Id.Name}[{this.Index.GenerateCode()}]";
     }
 }
 

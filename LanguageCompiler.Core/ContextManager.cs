@@ -4,11 +4,13 @@ namespace TSCompiler.Core
     public static class ContextManager
     {
         private static readonly List<Context> _contexts = new();
+        private static readonly List<Context> _contextsForCodeGeneration = new();
 
         public static Context Push()
         {
             var context = new Context();
             _contexts.Add(context);
+            _contextsForCodeGeneration.Add(context);
             return context;
         }
 
@@ -20,6 +22,18 @@ namespace TSCompiler.Core
         }
 
         public static void Put(string lexeme, IdExpression id) => _contexts.Last().Put(lexeme, id);
+
+        public static void UpdateSymbol(string lexeme, dynamic value)
+        {
+            for (var i = _contextsForCodeGeneration.Count - 1; i >= 0; i--)
+            {
+                var symbol = _contextsForCodeGeneration.ElementAt(i).Get(lexeme);
+                if (symbol != null)
+                {
+                    _contextsForCodeGeneration[i].UpdateSymbolValue(lexeme, value);
+                }
+            }
+        }
 
         public static Symbol Get(string lexeme)
         {
@@ -33,6 +47,19 @@ namespace TSCompiler.Core
             }
 
             throw new ApplicationException($"Symbol {lexeme} was not found in current context");
+        }
+
+        public static IEnumerable<Symbol> GetSymbolsForCurrentContext()
+        {
+            if (!_contextsForCodeGeneration.Any())
+            {
+                return Enumerable.Empty<Symbol>();
+            }
+
+            var last = _contextsForCodeGeneration.First();
+            var symbols = last.GetSymbolsForCurrentContext();
+            _contextsForCodeGeneration.Remove(last);
+            return symbols;
         }
     }
 
@@ -58,6 +85,16 @@ namespace TSCompiler.Core
         public Symbol Get(string lexeme)
         {
             return _symbolTable.TryGetValue(lexeme, out var value) ? value : null;
+        }
+
+        public IEnumerable<Symbol> GetSymbolsForCurrentContext() =>
+        this._symbolTable.Select(x => x.Value);
+
+        public void UpdateSymbolValue(string lexeme, dynamic value)
+        {
+            var symbol = Get(lexeme);
+            symbol.Value = value;
+            _symbolTable[lexeme] = symbol;
         }
     }
 }

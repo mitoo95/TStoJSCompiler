@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace TSCompiler.Core
 {
-    public class Statement
+    public abstract class Statement
     {
+        public abstract void ValidateSemantic();
 
+        public abstract string GenerateCode();
     }
 }

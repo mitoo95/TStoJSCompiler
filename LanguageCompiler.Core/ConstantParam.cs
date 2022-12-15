@@ -1,4 +1,4 @@
-﻿using System;
+﻿
 namespace TSCompiler.Core
 {
 	public class ConstantParam : ExpresionType

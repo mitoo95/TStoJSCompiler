@@ -1,19 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace TSCompiler.Core
 {
     public class IncrementStatement : Statement
     {
+        public IdExpression Id { get; set; }
         public IncrementStatement(IdExpression id)
         {
             Id = id;
         }
 
-        public IdExpression Id { get; set; }
+        public override void ValidateSemantic()
+        {
+            throw new NotImplementedException();
+        }
 
+        public override string GenerateCode() => $"{this.Id.GenerateCode()}++";
     }
 }

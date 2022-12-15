@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace TSCompiler.Core
 {
     public class SequenceStatement : Statement
@@ -15,9 +10,16 @@ namespace TSCompiler.Core
         {
             Current = current;
             Next = next;
+            this.ValidateSemantic();
         }
 
-        //statement actual y siguiente
+        public override void ValidateSemantic()
+        {
+            this.Current?.ValidateSemantic();
+            this.Next?.ValidateSemantic();
+        }
 
+        public override string GenerateCode() =>
+        $"{this.Current?.GenerateCode()} {Environment.NewLine} {this.Next?.GenerateCode()}";
     }
 }

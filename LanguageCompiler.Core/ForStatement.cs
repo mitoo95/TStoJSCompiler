@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace TSCompiler.Core
 {
     public class ForStatement : Statement
@@ -21,5 +16,14 @@ namespace TSCompiler.Core
             Statement = statement;
             Block = block;
         }
+
+        public override void ValidateSemantic()
+        {
+            /*throw new NotImplementedException();*/
+        }
+
+        public override string GenerateCode() =>
+        $"for({this.Declaration.GenerateCode()};{this.BooleanExpression.GenerateCode()};{this.Statement.GenerateCode()})" +
+            $"{{{Environment.NewLine} {this.Block.GenerateCode()} {Environment.NewLine}}}";
     }
 }

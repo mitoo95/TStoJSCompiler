@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace TSCompiler.Core
 {
     public class ConstantExpresion : Expresion
@@ -21,5 +16,7 @@ namespace TSCompiler.Core
         {
             return Type;
         }
+
+        public override string GenerateCode() => this.Token.Lexeme.Replace("\'", "\"");
     }
 }

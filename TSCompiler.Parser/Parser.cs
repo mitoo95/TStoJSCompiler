@@ -160,13 +160,13 @@ namespace TSCompiler.Parser
         private Statement DecrementStatement(IdExpression id)
         {
             Match(TokenType.MinusMinus);
-            return null;
+            return new DecrementStatement(id);
         }
 
         private Statement IncrementStatement(IdExpression id)
         {
             Match(TokenType.PlusPlus);
-            return null;
+            return new IncrementStatement(id);
         }
 
         private Statement AssignationStatement(IdExpression id)
@@ -422,7 +422,8 @@ namespace TSCompiler.Parser
 
         private Expresion EqualityExpressionPrime(Expresion expr)
         {
-            if(this.lookAhead.TokenType == TokenType.Equality)
+            var token = this.lookAhead;
+            if (this.lookAhead.TokenType == TokenType.Equality)
             {
                 Match(TokenType.Equality);
                 expr = RelationalExpression();
@@ -434,7 +435,7 @@ namespace TSCompiler.Parser
                 expr = RelationalExpression();
                 return EqualityExpressionPrime(expr);
             }
-            return new EqualityExpression(expr, RelationalExpression());
+            return new EqualityExpression(expr, RelationalExpression(), token);
             //eps
         }
 
@@ -496,7 +497,8 @@ namespace TSCompiler.Parser
                 expr = Term();
                 return ExpressionPrime(expr, minus);
             }
-            return new ArithmeticExpression(expr, Term(), token);
+            expr = new ArithmeticExpression(expr, Term(), token);
+            return expr;
         }
 
         private Expresion Term()
@@ -522,7 +524,8 @@ namespace TSCompiler.Parser
                 expr = Factor();
                 return TermPrime(expr, div);
             }
-            return new ArithmeticExpression(expr, Factor(), token);
+            expr = new ArithmeticExpression(expr, Factor(), token);
+            return expr;
         }
 
         private Expresion Factor()
@@ -565,8 +568,7 @@ namespace TSCompiler.Parser
                     Match(TokenType.LeftBracket);
                     var index = LogicalOrExpression();
                     Match(TokenType.RightBracket);
-                    id.Type = ((ArrayType)id.GetType()).Of;
-                    return id;
+                    return new ArrayAccessExpression(((ArrayType)id.GetType()).Of, token, id, index);
                 case TokenType.Not:
                     token = this.lookAhead;
                     Match(TokenType.Not);

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace TSCompiler.Core
 {
     public class AssignationStatement : Statement
@@ -16,7 +11,19 @@ namespace TSCompiler.Core
         {
             Id = id;
             Expression = expression;
+            this.ValidateSemantic();
+        }
+        public override void ValidateSemantic()
+        {
+            var idType = this.Id.GetType();
+            var exprType = this.Expression.GetType();
+            if (idType != exprType)
+            {
+                throw new ApplicationException($"Cannot convert source type '{exprType}' to {idType}");
+            }
         }
 
+        public override string GenerateCode() =>
+        $"{this.Id.GenerateCode()} = {this.Expression.GenerateCode()};";
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace TSCompiler.Core
 {
-    public class Node
+    public abstract class Node
     {
 
     }

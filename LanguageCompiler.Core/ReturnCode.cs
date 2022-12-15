@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace TSCompiler.Core
 {
     public class ReturnCode : Statement
@@ -18,5 +13,13 @@ namespace TSCompiler.Core
             Block = block;
             Main = main;
         }
+
+        public override void ValidateSemantic()
+        {
+            /*throw new NotImplementedException();*/
+        }
+
+        public override string GenerateCode() => $"{this.Imports.GenerateCode()} {Environment.NewLine} {this.Block.GenerateCode()}" +
+            $"{Environment.NewLine} {this.Main.GenerateCode()}";
     }
 }

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace TSCompiler.Core
 {
     public class WhileStatement : Statement
@@ -15,6 +10,18 @@ namespace TSCompiler.Core
         {
             BooleanExpression = booleanExpression;
             Statement = statement;
+            this.ValidateSemantic();
         }
+
+        public override void ValidateSemantic()
+        {
+            var exprType = this.BooleanExpression.GetType();
+            if (exprType != ExpresionType.Boolean)
+            {
+                throw new ApplicationException($"Cannot implicitly convert '{exprType}' to bool");
+            }
+        }
+        public override string GenerateCode() =>
+        $"while({this.BooleanExpression.GenerateCode()}){{ {Environment.NewLine} {this.Statement.GenerateCode()} {Environment.NewLine}}}";
     }
 }

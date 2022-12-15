@@ -63,6 +63,9 @@ namespace TSCompiler.Core
             return Tuple.Create(Lexeme, TokenType).GetHashCode();
         }
 
+        public static bool operator ==(ExpresionType a, ExpresionType b) => a.Equals(b);
+        public static bool operator !=(ExpresionType a, ExpresionType b) => !a.Equals(b);
+
         public override string ToString()
         {
             return Lexeme;
