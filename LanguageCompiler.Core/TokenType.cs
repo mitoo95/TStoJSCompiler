@@ -88,5 +88,6 @@ namespace TSCompiler.Core
         Console,
         Log,
         Dot,
+        StringConst,
     }
 }

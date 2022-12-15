@@ -274,15 +274,37 @@ namespace TSCompiler.Parser
             return expressions;
         }
 
-        private ExpresionType Param(IdExpression id)
-        {
-            var token = this.lookAhead;
-            id = new IdExpression(token.Lexeme, null);
-            Match(TokenType.Id);
-            ContextManager.Put(id.Name,id);
-            Match(TokenType.Colon);
-            var expr = Type();
-            return new BinaryParameter(id.Name, TokenType.BasicType, id, expr);
+        private ExpresionType Param(IdExpression id) { 
+            switch (this.lookAhead.TokenType) {
+                case TokenType.NumberConst:
+                    var token = this.lookAhead;
+                    Match(TokenType.NumberConst);
+                    return new ConstantParam(token.Lexeme, TokenType.BasicType, ExpresionType.Number, token);
+                case TokenType.TrueKeyword:
+                    token = this.lookAhead;
+                    Match(TokenType.TrueKeyword);
+                    return new ConstantParam(token.Lexeme, TokenType.BasicType, ExpresionType.Boolean, token);
+                case TokenType.FalseKeyword:
+                    token = this.lookAhead;
+                    Match(TokenType.FalseKeyword);
+                    return new ConstantParam(token.Lexeme, TokenType.BasicType, ExpresionType.Boolean, token);
+                case TokenType.StringConst:
+                    token = this.lookAhead;
+                    Match(TokenType.StringConst);
+                    return new ConstantParam(token.Lexeme, TokenType.BasicType, ExpresionType.String, token);
+                default:
+                    token = this.lookAhead;
+                    id = new IdExpression(token.Lexeme, null);
+                    Match(TokenType.Id);
+                    ContextManager.Put(id.Name, id);
+                    Match(TokenType.Colon);
+                    var expr = Type();
+                    return new BinaryParameter(id.Name, TokenType.BasicType, id, expr);
+            }
+
+    
+          
+            
         }
 
         private Statement ContinueStatement()
@@ -512,8 +534,12 @@ namespace TSCompiler.Parser
                     var expr = Expression();
                     Match(TokenType.RightParenthesis);
                     return expr;
-                case TokenType.NumberConst:
+                case TokenType.StringConst:
                     var token = this.lookAhead;
+                    Match(TokenType.StringConst);
+                    return new ConstantExpresion(ExpresionType.String, token);
+                case TokenType.NumberConst:
+                    token = this.lookAhead;
                     Match(TokenType.NumberConst);
                     return new ConstantExpresion(ExpresionType.Number, token);
                 case TokenType.TrueKeyword:

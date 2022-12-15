@@ -312,8 +312,17 @@ namespace TSCompiler.Lexer
                         lexeme.Append(currentChar);
                         return CreateToken(TokenType.RightBracket, input.Position.Column, input.Position.Line, lexeme.ToString());
                     case '\'':
-                        lexeme.Append(currentChar);
-                        return CreateToken(TokenType.SingleQuote, input.Position.Column, input.Position.Line, lexeme.ToString());
+                        {
+                            lexeme.Append(currentChar);
+                            currentChar = GetNextChar();
+                            while (currentChar != '\'')
+                            {
+                                lexeme.Append(currentChar);
+                                currentChar = GetNextChar();
+                            }
+                            lexeme.Append(currentChar);
+                            return CreateToken(TokenType.StringConst, input.Position.Column, input.Position.Line, lexeme.ToString());
+                        }
                     case '\0':
                         lexeme.Append(currentChar);
                         return CreateToken(TokenType.EOF, input.Position.Column, input.Position.Line, lexeme.ToString());
